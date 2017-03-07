@@ -3,7 +3,6 @@
  * https://github.com/facebook/react-native
  * @flow
  */
-
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -16,16 +15,7 @@ export default class test extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
+        <Text style={styles.button}>Button</Text>
       </View>
     );
   }
@@ -48,6 +38,15 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 5,
   },
+  button:{
+    backgroundColor:"black",
+    color:"white",
+    paddingVertical:10,
+    paddingHorizontal:20
+  }
 });
 
-AppRegistry.registerComponent('test', () => test);
+import alivePush from './alivePush'
+const TestWrapper=alivePush()(test);
+AppRegistry.registerComponent('test', () => TestWrapper);
+// AppRegistry.registerComponent('test', () => test);
