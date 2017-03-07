@@ -5,15 +5,30 @@ import RNDeviceInfo from 'react-native-device-info'
 import {unzip} from 'react-native-zip-archive'
 
 const host = "http://172.16.30.193:8080/";
+
 const feedbackType = {
 	downloadSuccess: 1,
 	installSuccess: 2
 };
+
 const {RNAlivePush}=NativeModules;
+
+export const AlivePushStatus = {
+	beginCheck: "BEGINCHECK",
+	checking: "CHECKING",
+	endCheck: "ENDCHECK",
+	beginDownload: "BEGINDOWNLOAD",
+	downloading: "DOWNLOADING",
+	endDownload: "ENDDOWNLOAD",
+	beginUnzip: "BEGINUNZIP",
+	unzipping: "UNZIPPING",
+	endUnzip: "ENDUNZIP",
+	complete: "COMPLETE"
+};
 
 console.log(RNAlivePush);
 
-let _deviceInfo = null;
+let _deviceInfo = null, _appInfo = null;
 
 type FeedbackFormData={
 	type:feedbackType
@@ -33,6 +48,17 @@ type ResponseJSON={
 	success:Boolean,
 	data:Object,
 	msg:String
+}
+
+function objectToBase64Sync(obj: Object): String {
+	let data = [];
+	for (let key in obj) {
+		if (typeof obj[key] !== "function") {
+			data.push(`${key}=${obj[key]}`);
+		}
+	}
+	let str = data.join(',');
+	return RNFetchBlob.base64.encode(str, 'base64');
 }
 
 class DeviceInfo {
@@ -58,61 +84,72 @@ class DeviceInfo {
 		this.Tablet = RNDeviceInfo.isTablet();
 	}
 
-	toStringSync() {
-		let arr = [];
-		for (let key in this) {
-			let value = this[key];
-			if (typeof value === "string") {
-				arr.push(`${key}=${this[key]}`);
-			}
-		}
-		return arr.join(",");
-	}
+	// toStringSync() {
+	// 	let arr = [];
+	// 	for (let key in this) {
+	// 		let value = this[key];
+	// 		if (typeof value === "string") {
+	// 			arr.push(`${key}=${this[key]}`);
+	// 		}
+	// 	}
+	// 	return arr.join(",");
+	// }
 
 	toBase64Sync() {
-		let str = this.toStringSync();
-		return RNFetchBlob.base64.encode(str, 'base64');
+		// let str = this.toStringSync();
+		// return RNFetchBlob.base64.encode(str, 'base64');
+		return objectToBase64(this);
 	}
 }
 
 let alivePush = (options)=> {
+	if (!options) {
+		throw new Error('options is required');
+	}
+	if (!options.deploymentKey) {
+		throw new Error('options.deploymentKey is required');
+	}
 	let decorator = (RootComponent) => {
 		return class AlivePushComponent extends Component {
 			constructor(props) {
 				super(props);
-				this.options = null;
+				this.options = options;
+				this.statusChangeCallback = ()=> {
+				};
+				this.downloadProgressCallback = ()=> {
+				};
+				this.errorCallback = null;
 			}
 
 			componentDidMount() {
 				let rootComponentInstance = this.refs.rootComponent;
-				let statusChangeCallback;
+
 				if (rootComponentInstance && rootComponentInstance.alivePushStatusChange) {
-					statusChangeCallback = rootComponentInstance.alivePushStatusChange;
+					this.statusChangeCallback = rootComponentInstance.alivePushStatusChange;
 					if (rootComponentInstance instanceof Component) {
-						statusChangeCallback = statusChangeCallback.bind(rootComponentInstance);
+						this.statusChangeCallback = this.statusChangeCallback.bind(rootComponentInstance);
 					}
 				}
 
-				let downloadProgressCallback;
 				if (rootComponentInstance && rootComponentInstance.alivePushDownloadProgress) {
-					downloadProgressCallback = rootComponentInstance.alivePushDownloadProgress;
+					this.downloadProgressCallback = rootComponentInstance.alivePushDownloadProgress;
 					if (rootComponentInstance instanceof Component) {
-						downloadProgressCallback = downloadProgressCallback.bind(rootComponentInstance);
+						this.downloadProgressCallback = this.downloadProgressCallback.bind(rootComponentInstance);
 					}
 				}
 
-				let errorCallback;
 				if (rootComponentInstance && rootComponentInstance.alivePushError) {
-					errorCallback = rootComponentInstance.alivePushError;
+					this.errorCallback = rootComponentInstance.alivePushError;
 					if (rootComponentInstance instanceof Component) {
-						errorCallback = errorCallback.bind(rootComponentInstance);
+						this.errorCallback = this.errorCallback.bind(rootComponentInstance);
 					}
 				}
-				this.sync(options, statusChangeCallback, downloadProgressCallback, errorCallback);
+
+				this.sync();
 			}
 
 
-			getDeviceInfo() {
+			getDeviceInfo(): Promise {
 				return new Promise((resolve, reject)=> {
 					if (!_deviceInfo) {
 						_deviceInfo = new DeviceInfo();
@@ -121,35 +158,47 @@ let alivePush = (options)=> {
 				});
 			}
 
+			async getAppInfo(): Promise {
+				if (_appInfo) {
+					return Promise.resolve(_appInfo);
+				}
+				return this.getConfig().then(config=> {
+					_appInfo = {
+						binary: RNAlivePush.VersionName,
+						inner: config.version || null,
+						deploymentKey: this.options.deploymentKey
+					};
+					return _appInfo;
+				});
+			}
+
 			getRemoteConfig() {
 
 			}
 
-			async buildHeaders() {
+
+			async buildHeaders(): Promise|Object {
 				let device = await this.getDeviceInfo();
-				let config = await this.getConfig();
-				let app = {
-					BinraryVersionName: RNAlivePush.VersionName,
-					InnerVersionName: config.version || null,
-					DeploymentKey: this.options.deploymentKey
-				};
-				return {
+				let app = await this.getAppInfo();
+				let headers = {
 					device: device.toBase64Sync(),
 					contentType: 'application/json',
 					app
 				};
+				console.log('headers', headers);
+				return headers;
 			}
 
 			async checkUpdate(): Promise | ResponseJSON {
 				let headers = await this.buildHeaders();
+				this.statusChangeCallback(AlivePushStatus.checking);
 				let res = await RNFetchBlob.fetch("GET", `${host}main/checkupdate`, headers);
 				let json = res.json();
 				console.log(json);
 				return res;
 			}
 
-			async downloadPackage(url: String, progress: Function = ()=> {
-			}) {
+			async downloadPackage(url: String): Promise {
 				if (!url) {
 					throw new Error("url is required");
 				}
@@ -160,12 +209,13 @@ let alivePush = (options)=> {
 					throw new Error("package url must be end with '.zip'");
 				}
 				let headers = await this.buildHeaders();
+				this.statusChangeCallback(AlivePushStatus.downloading);
 				return RNFetchBlob.config({
 					fileCache: true
-				}).progress(progress).fetch("GET", url, headers);
+				}).progress(this.downloadProgressCallback).fetch("GET", url, headers);
 			}
 
-			async feedback(data: FeedbackFormData = {type: feedbackType.downloadSuccess}) {
+			async feedback(data: FeedbackFormData = {type: feedbackType.downloadSuccess}): ResponseJSON {
 				let headers = await this.buildHeaders();
 				console.log(headers);
 				let res = await RNFetchBlob.fetch("POST", `${host}main/feedback`, headers, JSON.stringify(data));
@@ -173,34 +223,39 @@ let alivePush = (options)=> {
 				return json;
 			}
 
-			async getConfig(): AlivePushConfig {
-				let readStream = await RNFetchBlob.fs.readStream(RNAlivePush.AlivePushConfigPath, 'utf8');
-				return new Promise((resolve, reject)=> {
-					let data = [];
-					readStream.onData(chunk=> {
-						data.push(chunk);
+			getConfig(): AlivePushConfig {
+				return RNFetchBlob.fs.readStream(RNAlivePush.AlivePushConfigPath, 'utf8')
+					.then(readStream=> {
+						return new Promise((resolve, reject)=> {
+							let data = [];
+							readStream.onData(chunk=> {
+								data.push(chunk);
+							});
+							readStream.onEnd(()=> {
+								debugger
+								let jsonStr = data.join('');
+								let json;
+								try {
+									json = JSON.parse(jsonStr);
+								}
+								catch (ex) {
+									json = {};
+								}
+								resolve(json);
+							});
+							readStream.onError(err=> {
+								reject(err);
+							});
+							readStream.open();
+						});
+					}).catch(err=> {
+						return {};
 					});
-					readStream.onEnd(()=> {
-						let jsonStr = data.join('');
-						let json;
-						try {
-							json = JSON.parse(jsonStr);
-						}
-						catch (ex) {
-							json = {};
-						}
-						resolve(json);
-					});
-					readStream.onError(err=> {
-						reject(err);
-					});
-					readStream.open();
-				});
 			}
 
 			async writeConfig(newConfig: AlivePushConfig): Promise {
 				let ws = await RNFetchBlob.fs.writeStream(RNAlivePush.AlivePushConfigPath, 'utf8');
-				ws.write(JSON.stringify(config));
+				ws.write(JSON.stringify(newConfig));
 				return ws.close();
 			}
 
@@ -210,8 +265,9 @@ let alivePush = (options)=> {
 				return this.writeConfig(config);
 			}
 
-			async unzipPackage(path: String) {
+			async unzipPackage(path: String): Promise {
 				let fileName = path.substring(path.lastIndexOf("/"), path.lastIndexOf("."));
+				this.statusChangeCallback(AlivePushStatus.unzipping);
 				return unzip(path, `${RNAlivePush.CachePath}/${fileName}`)
 					.then(unzipPath=> {
 						// delete package cache
@@ -219,37 +275,35 @@ let alivePush = (options)=> {
 					})
 			}
 
-			async sync(options: AlivePushOption,
-					   statusChangeCallback: ?Function,
-					   downloadProgressCallback: ?Function,
-					   errorCallback: ?Function): Void {
-				if (!options) {
-					throw new Error('options is required');
-				}
-				if (!options.deploymentKey) {
-					throw new Error('options.deploymentKey is required');
-				}
-				this.options = options;
-				let result = await this.checkUpdate();
-				if (result.success) {
-					//download package
-					try {
-						let newPackage = await this.downloadPackage(result.data.url, downloadProgressCallback);
+			async sync(): void {
+				try {
+					this.statusChangeCallback(AlivePushStatus.beginCheck);
+					let result = await this.checkUpdate();
+					this.statusChangeCallback(AlivePushStatus.endCheck);
+					if (result.success) {
+						this.statusChangeCallback(AlivePushStatus.beginDownload);
+						let newPackage = await this.downloadPackage(result.data.url);
+						this.statusChangeCallback(AlivePushStatus.endDownload);
 						let packagePath = newPackage.path();
+						this.statusChangeCallback(AlivePushStatus.beginUnzip);
 						await this.unzipPackage(packagePath);
+						this.statusChangeCallback(AlivePushStatus.endUnzip);
+						//TODO
 						await this.updateConfig({
 							path: "",
 							version: "",
 							lastUpdateTime: Date.now()
-						})
+						});
+						this.statusChangeCallback(AlivePushStatus.complete);
+						await RNAlivePush.restart();
 					}
-					catch (ex) {
-						if (errorCallback) {
-							errorCallback(ex);
-						}
-						else {
-							throw ex;
-						}
+				}
+				catch (ex) {
+					if (this.errorCallback) {
+						this.errorCallback(ex);
+					}
+					else {
+						throw ex;
 					}
 				}
 			}

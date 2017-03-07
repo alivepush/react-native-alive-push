@@ -12,6 +12,12 @@ import {
 } from 'react-native';
 
 export default class test extends Component {
+  alivePushStatusChange(status){
+    console.log(`status:${status}`);
+  }
+  alivePushError(ex){
+    console.log(ex);
+  }
   render() {
     return (
       <View style={styles.container}>
@@ -47,6 +53,8 @@ const styles = StyleSheet.create({
 });
 
 import alivePush from './alivePush'
-const TestWrapper=alivePush()(test);
+const TestWrapper=alivePush({
+  deploymentKey:"test"
+})(test);
 AppRegistry.registerComponent('test', () => TestWrapper);
 // AppRegistry.registerComponent('test', () => test);
