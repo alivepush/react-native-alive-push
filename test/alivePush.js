@@ -1,19 +1,38 @@
+import {NativeModules} from 'react-native'
 import React, {Component} from 'react'
 import RNFetchBlob from 'react-native-fetch-blob'
 import RNDeviceInfo from 'react-native-device-info'
+import {unzip} from 'react-native-zip-archive'
 
-const fs = RNFetchBlob.fs;
-const appCachePath = `${fs.dirs.DocumentDir}/.alivepush`;
 const host = "http://172.16.30.193:8080/";
 const feedbackType = {
 	downloadSuccess: 1,
 	installSuccess: 2
 };
+const {RNAlivePush}=NativeModules;
+
+console.log(RNAlivePush);
 
 let _deviceInfo = null;
 
 type FeedbackFormData={
 	type:feedbackType
+}
+
+type AlivePushOption={
+	deploymentKey:String
+}
+
+type AlivePushConfig={
+	path:String,
+	version:String,
+	lastUpdateTime:Number
+}
+
+type ResponseJSON={
+	success:Boolean,
+	data:Object,
+	msg:String
 }
 
 class DeviceInfo {
@@ -59,6 +78,11 @@ class DeviceInfo {
 let alivePush = (options)=> {
 	let decorator = (RootComponent) => {
 		return class AlivePushComponent extends Component {
+			constructor(props) {
+				super(props);
+				this.options = null;
+			}
+
 			componentDidMount() {
 				let rootComponentInstance = this.refs.rootComponent;
 				let statusChangeCallback;
@@ -103,40 +127,131 @@ let alivePush = (options)=> {
 
 			async buildHeaders() {
 				let device = await this.getDeviceInfo();
+				let config = await this.getConfig();
+				let app = {
+					BinraryVersionName: RNAlivePush.VersionName,
+					InnerVersionName: config.version || null,
+					DeploymentKey: this.options.deploymentKey
+				};
 				return {
 					device: device.toBase64Sync(),
-					contentType: 'application/json'
+					contentType: 'application/json',
+					app
 				};
 			}
 
-			checkUpdate() {
-				return RNFetchBlob.fetch("GET", `${host}main/checkupdate`)
-					.then(res=> {
-						let json = res.json();
-						console.log(json);
-					})
+			async checkUpdate(): Promise | ResponseJSON {
+				let headers = await this.buildHeaders();
+				let res = await RNFetchBlob.fetch("GET", `${host}main/checkupdate`, headers);
+				let json = res.json();
+				console.log(json);
+				return res;
 			}
 
+			async downloadPackage(url: String, progress: Function = ()=> {
+			}) {
+				if (!url) {
+					throw new Error("url is required");
+				}
+				if (!/^http/.test(url) || !/^https/.test(url)) {
+					throw new Error("url is invalid");
+				}
+				if (!/\.zip$/i.test(url)) {
+					throw new Error("package url must be end with '.zip'");
+				}
+				let headers = await this.buildHeaders();
+				return RNFetchBlob.config({
+					fileCache: true
+				}).progress(progress).fetch("GET", url, headers);
+			}
 
 			async feedback(data: FeedbackFormData = {type: feedbackType.downloadSuccess}) {
 				let headers = await this.buildHeaders();
 				console.log(headers);
-				return RNFetchBlob.fetch("POST", `${host}main/feedback`, headers, JSON.stringify(data))
-					.then(res=> {
-						let json = res.json();
-						return json();
-					});
+				let res = await RNFetchBlob.fetch("POST", `${host}main/feedback`, headers, JSON.stringify(data));
+				let json = res.json();
+				return json;
 			}
 
-			async sync(options, statusChangeCallback, downloadProgressCallback, errorCallback) {
-				let deviceInfo = await this.getDeviceInfo();
-				console.log(deviceInfo);
-				console.log(deviceInfo.toStringSync());
-				console.log(deviceInfo.toBase64Sync());
-				let checkUpdateResult = await this.checkUpdate();
-				console.log(checkUpdateResult);
-				let feedbackResult = await this.feedback();
-				console.log('feedbackResult=>', feedbackResult);
+			async getConfig(): AlivePushConfig {
+				let readStream = await RNFetchBlob.fs.readStream(RNAlivePush.AlivePushConfigPath, 'utf8');
+				return new Promise((resolve, reject)=> {
+					let data = [];
+					readStream.onData(chunk=> {
+						data.push(chunk);
+					});
+					readStream.onEnd(()=> {
+						let jsonStr = data.join('');
+						let json;
+						try {
+							json = JSON.parse(jsonStr);
+						}
+						catch (ex) {
+							json = {};
+						}
+						resolve(json);
+					});
+					readStream.onError(err=> {
+						reject(err);
+					});
+					readStream.open();
+				});
+			}
+
+			async writeConfig(newConfig: AlivePushConfig): Promise {
+				let ws = await RNFetchBlob.fs.writeStream(RNAlivePush.AlivePushConfigPath, 'utf8');
+				ws.write(JSON.stringify(config));
+				return ws.close();
+			}
+
+			async updateConfig(newConfig: AlivePushConfig): Promise {
+				let oldConfig = await this.getConfig();
+				let config = Object.assign({}, oldConfig, newConfig);
+				return this.writeConfig(config);
+			}
+
+			async unzipPackage(path: String) {
+				let fileName = path.substring(path.lastIndexOf("/"), path.lastIndexOf("."));
+				return unzip(path, `${RNAlivePush.CachePath}/${fileName}`)
+					.then(unzipPath=> {
+						// delete package cache
+						return RNFetchBlob.unlink(path);
+					})
+			}
+
+			async sync(options: AlivePushOption,
+					   statusChangeCallback: ?Function,
+					   downloadProgressCallback: ?Function,
+					   errorCallback: ?Function): Void {
+				if (!options) {
+					throw new Error('options is required');
+				}
+				if (!options.deploymentKey) {
+					throw new Error('options.deploymentKey is required');
+				}
+				this.options = options;
+				let result = await this.checkUpdate();
+				if (result.success) {
+					//download package
+					try {
+						let newPackage = await this.downloadPackage(result.data.url, downloadProgressCallback);
+						let packagePath = newPackage.path();
+						await this.unzipPackage(packagePath);
+						await this.updateConfig({
+							path: "",
+							version: "",
+							lastUpdateTime: Date.now()
+						})
+					}
+					catch (ex) {
+						if (errorCallback) {
+							errorCallback(ex);
+						}
+						else {
+							throw ex;
+						}
+					}
+				}
 			}
 
 			render() {
