@@ -1,8 +1,12 @@
 
 package com.reactlibrary;
 
+import android.app.AlarmManager;
+import android.app.Application;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Log;
 
@@ -140,10 +144,19 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void restart() {
-        Context applicationContext=this.reactContext.getApplicationContext();
-        Intent intent = applicationContext.getPackageManager()
+        Context applicationContext = this.reactContext.getApplicationContext();
+
+        Intent startIntent = applicationContext.getPackageManager()
                 .getLaunchIntentForPackage(applicationContext.getPackageName());
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        applicationContext.startActivity(intent);
+
+        int mPendingIntentId = 123456;
+
+        PendingIntent mPendingIntent =
+                PendingIntent.getActivity(applicationContext,
+                        mPendingIntentId,
+                        startIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager) applicationContext.getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+        System.exit(0);
     }
 }

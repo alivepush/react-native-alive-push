@@ -3,6 +3,7 @@ import React, {Component} from 'react'
 import RNFetchBlob from 'react-native-fetch-blob'
 import RNDeviceInfo from 'react-native-device-info'
 import {unzip} from 'react-native-zip-archive'
+import {Restart} from 'react-native-restart'
 
 const host = "http://172.16.30.193:8080/";
 
@@ -295,7 +296,7 @@ let alivePush = (options)=> {
 							lastUpdateTime: Date.now()
 						});
 						this.statusChangeCallback(AlivePushStatus.complete);
-						await RNAlivePush.restart();
+						Restart();
 					}
 				}
 				catch (ex) {
