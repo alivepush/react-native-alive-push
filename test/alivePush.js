@@ -3,7 +3,6 @@ import React, {Component} from 'react'
 import RNFetchBlob from 'react-native-fetch-blob'
 import RNDeviceInfo from 'react-native-device-info'
 import {unzip} from 'react-native-zip-archive'
-import {Restart} from 'react-native-restart'
 
 const host = "http://172.16.30.193:8080/";
 
@@ -99,7 +98,7 @@ class DeviceInfo {
 	toBase64Sync() {
 		// let str = this.toStringSync();
 		// return RNFetchBlob.base64.encode(str, 'base64');
-		return objectToBase64(this);
+		return objectToBase64Sync(this);
 	}
 }
 
@@ -165,9 +164,9 @@ let alivePush = (options)=> {
 				}
 				return this.getConfig().then(config=> {
 					_appInfo = {
-						binary: RNAlivePush.VersionName,
-						inner: config.version || null,
-						deploymentKey: this.options.deploymentKey
+						Binary: RNAlivePush.VersionName,
+						Inner: config.version || null,
+						DeploymentKey: this.options.deploymentKey
 					};
 					return _appInfo;
 				});
@@ -184,7 +183,7 @@ let alivePush = (options)=> {
 				let headers = {
 					device: device.toBase64Sync(),
 					contentType: 'application/json',
-					app
+					app: objectToBase64Sync(app)
 				};
 				console.log('headers', headers);
 				return headers;
@@ -296,7 +295,7 @@ let alivePush = (options)=> {
 							lastUpdateTime: Date.now()
 						});
 						this.statusChangeCallback(AlivePushStatus.complete);
-						Restart();
+						RNAlivePush.restart();
 					}
 				}
 				catch (ex) {

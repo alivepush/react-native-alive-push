@@ -3,5 +3,6 @@
     "react-native"
   ],
   "plugins": [
+    "transform-decorators-legacy"
   ]
 }

@@ -12,9 +12,11 @@ import {
 	NativeModules
 } from 'react-native';
 const {RNAlivePush}=NativeModules;
-import {Restart} from 'react-native-restart'
+import alivePush from './alivePush'
 
-
+@alivePush({
+	deploymentKey:"test"
+})
 export default class test extends Component {
 	alivePushStatusChange(status) {
 		console.log(`status:${status}`);
@@ -63,9 +65,8 @@ const styles = StyleSheet.create({
 	}
 });
 
-import alivePush from './alivePush'
-const TestWrapper = alivePush({
-	deploymentKey: "test"
-})(test);
-AppRegistry.registerComponent('test', () => TestWrapper);
-// AppRegistry.registerComponent('test', () => test);
+// const TestWrapper = alivePush({
+// 	deploymentKey: "test"
+// })(test);
+// AppRegistry.registerComponent('test', () => TestWrapper);
+AppRegistry.registerComponent('test', () => test);
