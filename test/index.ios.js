@@ -12,22 +12,38 @@ import {
   View
 } from 'react-native';
 
+import alivePush from 'react-native-alive-push'
+
+@alivePush({
+  deploymentKey: "befd157690f044eeb19ee6dad43e08ef"
+})
+
 export default class test extends Component {
+  alivePushStatusChange(status) {
+    console.log('alivePushStatusChange', status);
+  }
+
+  alivePushError(ex) {
+    console.log('alivePushError', ex);
+  }
+
+  alivePushDownloadProgress(progress) {
+    console.log('alivePushDownloadProgress', progress);
+  }
+
   render() {
+    debugger
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
-      </View>
-    );
+        <View style={styles.container}>
+  <Text style={styles.button}>Button</Text>
+    <Text
+    onPress={event=>{
+      debugger
+      alivePush.restart();
+    }}
+    style={styles.button}>restart</Text>
+    </View>
+  );
   }
 }
 

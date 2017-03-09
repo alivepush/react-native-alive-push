@@ -7,5 +7,7 @@
 
 @interface RNAlivePush : NSObject <RCTBridgeModule>
 
+- (NSURL*)getJSBundleFile;
+
 @end
   

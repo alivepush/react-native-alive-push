@@ -9,7 +9,7 @@
   "dependencies": {
     "react": "15.4.2",
     "react-native": "0.42.0",
-
+    "react-native-alive-push": "file:///Users/yzw/alive-push/alive-push",
     "react-native-device-info": "^0.9.9",
     "react-native-fetch-blob": "^0.10.2",
     "react-native-zip-archive": "^1.1.0"

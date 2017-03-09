@@ -26,7 +26,7 @@ export const AlivePushStatus = {
 	complete: "COMPLETE"
 };
 
-console.log(RNAlivePush);
+console.log("RNAlivePush:",RNAlivePush);
 
 let _deviceInfo = null, _appInfo = null;
 
@@ -80,6 +80,7 @@ function getFilenameSync(url: String): String {
 
 export class DeviceInfo {
 	constructor() {
+
 		this.UniqueID = RNDeviceInfo.getUniqueID();
 		this.Manufacturer = RNDeviceInfo.getManufacturer();
 		this.Brand = RNDeviceInfo.getBrand();
@@ -111,6 +112,7 @@ export class DeviceInfo {
 }
 
 let alivePush = (options: AlivePushOption)=> {
+
 	if (!options) {
 		throw new Error('options is required');
 	}
@@ -119,6 +121,10 @@ let alivePush = (options: AlivePushOption)=> {
 	}
 	let decorator = (RootComponent) => {
 		return class AlivePushComponent extends Component {
+
+			restart(){
+				RNAlivePush.restart()
+			}
 			constructor(props) {
 				super(props);
 				this.options = options;
