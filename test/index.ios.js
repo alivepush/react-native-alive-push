@@ -32,7 +32,7 @@ export default class test extends Component {
   }
 
   render() {
-    
+
     return (
         <View style={styles.container}>
   <Text style={styles.button}>Button</Text>

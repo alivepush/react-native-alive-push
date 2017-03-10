@@ -6,6 +6,7 @@
 #import <React/RCTRootView.h>
 
 #define kAlivePushConfigPath @"kAlivePushConfigPath.config"
+#define kJSBundleFilePath @"bundle"
 
 @implementation RNAlivePush
 
@@ -20,7 +21,8 @@ RCT_EXPORT_MODULE()
   NSDictionary *dic = @{ @"CachePath": [self documentPath],
                          @"AlivePushConfigPath":[self getAlivePushConfigPath],
                          @"VersionName":[self getVersionName],
-                         @"VersionCode":[self getVersinCode]};
+                         @"VersionCode":[self getVersinCode],
+                         @"JSBundleFilePath": [self getJSBundleFilePath]};
   return dic;
 }
 
@@ -82,6 +84,10 @@ RCT_EXPORT_METHOD(restart)
 - (NSString*)getAlivePushConfigPath{
   
   return [[self documentPath] stringByAppendingPathComponent:kAlivePushConfigPath];
+}
+
+- (NSString*)getJSBundleFilePath{
+  return [[self documentPath] stringByAppendingPathComponent:kJSBundleFilePath];
 }
 
 - (NSString*)getVersionName{
