@@ -32,14 +32,14 @@ export default class test extends Component {
   }
 
   render() {
-    debugger
+    
     return (
         <View style={styles.container}>
   <Text style={styles.button}>Button</Text>
     <Text
     onPress={event=>{
-      debugger
-      alivePush.restart();
+      //debugger
+      //alivePush.restart();
     }}
     style={styles.button}>restart</Text>
     </View>
