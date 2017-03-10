@@ -6,8 +6,8 @@
 # node.js
 #
 node_modules/
-npm-debug.log
-yarn-error.log
+npm-debug.feedback
+yarn-error.feedback
   
 
 # Xcode

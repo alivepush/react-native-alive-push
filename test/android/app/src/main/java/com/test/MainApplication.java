@@ -30,17 +30,17 @@ public class MainApplication extends Application implements ReactApplication {
         @Nullable
         @Override
         protected String getJSBundleFile() {
-            return RNAlivePushModule.getJSBundleFile();
+            return RNAlivePushModule.getJSBundleFile(MainApplication.this);
         }
 
         @Override
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
-            new RNZipArchivePackage(),
-            new RNFetchBlobPackage(),
-            new RNDeviceInfo(),
-            new RNAlivePushPackage()
+                    new RNZipArchivePackage(),
+                    new RNFetchBlobPackage(),
+                    new RNDeviceInfo(),
+                    new RNAlivePushPackage()
             );
         }
     };

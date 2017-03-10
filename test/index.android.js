@@ -9,12 +9,33 @@ import {
 	StyleSheet,
 	Text,
 	View,
-	NativeModules
+	NativeModules,
+	Alert
 } from 'react-native';
 import alivePush from 'react-native-alive-push'
+// import alivePush from './alivepush'
+const {RNAlivePush}=NativeModules;
+import RNFetchBlob from 'react-native-fetch-blob'
+
 
 @alivePush({
-	deploymentKey: "2a2b1bbefc9450b556c034dd86fd3ab2"
+	deploymentKey: "2a2b1bbefc9450b556c034dd86fd3ab2",
+	onBeforeRestart: (restartCallback)=> {
+		Alert.alert(
+			'提示',
+			'是否马上进行重启?',
+			[
+				{text: '否'},
+				{
+					text: '是',
+					onPress: ()=> {
+						restartCallback();
+					}
+				}
+			],
+			{cancelable: false}
+		)
+	}
 })
 export default class test extends Component {
 	alivePushStatusChange(status) {
@@ -25,8 +46,8 @@ export default class test extends Component {
 		console.log('alivePushError', ex);
 	}
 
-	alivePushDownloadProgress(progress) {
-		console.log('alivePushDownloadProgress', progress);
+	alivePushDownloadProgress(...args) {
+		console.log('alivePushDownloadProgress', args);
 	}
 
 	render() {
@@ -34,10 +55,41 @@ export default class test extends Component {
 			<View style={styles.container}>
 				<Text style={styles.button}>Button</Text>
 				<Text
+					style={styles.button}
 					onPress={event=>{
-						RNAlivePush.restart();
+						async function showChildren(path){
+							let files = await RNFetchBlob.fs.ls(path)
+							console.log(path,files);
+							for(let i=0;i<files.length;i++){
+								let subpath=`${path}/${files[i]}`;
+								try{
+									let isdir=await RNFetchBlob.fs.isDir(subpath);
+									if(isdir){
+										await showChildren(subpath);
+									}
+								}
+								catch(ex){
+									console.log(ex);
+								}
+
+							}
+						}
+						showChildren(RNAlivePush.CachePath+"/10001");
+				}}>ls</Text>
+				<Text
+					onPress={async event=>{
+						let exists = await RNFetchBlob.fs.exists(RNAlivePush.AlivePushConfigPath);
+						let str = JSON.stringify({});
+						if (exists) {
+							let ws = await RNFetchBlob.fs.writeStream(RNAlivePush.AlivePushConfigPath, 'utf8');
+							ws.write(str);
+							return ws.close();
+						}
+						else {
+							return RNFetchBlob.fs.createFile(RNAlivePush.AlivePushConfigPath, str, 'utf8');
+						}
 					}}
-					style={styles.button}>restart</Text>
+					style={styles.button}>clear alive push config</Text>
 			</View>
 		);
 	}
@@ -64,7 +116,8 @@ const styles = StyleSheet.create({
 		backgroundColor: "black",
 		color: "white",
 		paddingVertical: 10,
-		paddingHorizontal: 20
+		paddingHorizontal: 20,
+		marginTop: 10
 	}
 });
 

@@ -6,11 +6,10 @@ import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Environment;
 import android.util.Log;
 
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -23,7 +22,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +29,6 @@ import javax.annotation.Nullable;
 
 public class RNAlivePushModule extends ReactContextBaseJavaModule {
 
-    private static String CACHE_NAME = ".alivepush";
     private static String ALIVE_PUSH_CONFIG_NAME = "config.data";
     private static String LOG_TYPE_NAME = "AlivePush";
 
@@ -42,33 +39,25 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         this.reactContext = reactContext;
     }
 
-    public static
+    private
     @Nullable
-    String getJSBundleFile() {
-        JSONObject config = RNAlivePushModule.getAlivePushConfig();
-        if (config != null) {
-            try {
-                String path = config.getString("path");
-                File bundleFile = new File(path);
-                if (bundleFile.exists()) {
-                    if (BuildConfig.DEBUG) {
-                        Log.i(RNAlivePushModule.LOG_TYPE_NAME, "app will start from " + path);
-                    }
-                    return path;
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+    String getApplicationPath() {
+        PackageManager packageManager = this.reactContext.getPackageManager();
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(this.reactContext.getPackageName(), 0);
+            return packageInfo.applicationInfo.dataDir;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-    public static
+    private
     @Nullable
     JSONObject getAlivePushConfig() {
-        File cache = RNAlivePushModule.getCache();
-        if (cache != null) {
-            File config = new File(cache.getPath(), RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
+        String cachePath = this.getApplicationPath();
+        if (cachePath != null) {
+            File config = new File(cachePath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
             if (config.exists()) {
                 try {
                     BufferedReader reader = new BufferedReader(new FileReader(config));
@@ -97,31 +86,44 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         return null;
     }
 
-    public static boolean storageEnable() {
-        String storageState = Environment.getExternalStorageState();
-        boolean enable = storageState.equals(Environment.MEDIA_MOUNTED);
-        if (BuildConfig.DEBUG) {
-            Log.i(RNAlivePushModule.LOG_TYPE_NAME, "storage enable : " + enable);
-        }
-        return enable;
-    }
-
     public static
     @Nullable
-    File getCache() {
-        if (RNAlivePushModule.storageEnable()) {
-            File sdcard = Environment.getExternalStorageDirectory();
-            File cache = new File(sdcard.getAbsolutePath(), RNAlivePushModule.CACHE_NAME);
-            if (!cache.exists()) {
-                cache.mkdirs();
+    String getJSBundleFile(Application application) {
+        PackageManager packageManager = application.getPackageManager();
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(application.getPackageName(), 0);
+            String applicationPath = packageInfo.applicationInfo.dataDir;
+            File configFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
+            if (configFile.exists()) {
+                BufferedReader reader = new BufferedReader(new FileReader(configFile));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                reader.close();
+                if (BuildConfig.DEBUG) {
+                    Log.i(RNAlivePushModule.LOG_TYPE_NAME, "Alive Push Config = \n" + stringBuilder.toString());
+                }
+                JSONObject config = new JSONObject(stringBuilder.toString());
+                String bundlePath = config.getString("path");
+                File bundleFile = new File(bundlePath);
+                if (bundleFile.exists()) {
+                    return bundlePath;
+                }
             }
-            if (BuildConfig.DEBUG) {
-                Log.i(RNAlivePushModule.LOG_TYPE_NAME, "cache path = " + cache.getPath());
-            }
-            return cache;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
+
 
     @Override
     public String getName() {
@@ -132,15 +134,50 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
     @Override
     public Map<String, Object> getConstants() {
         final Map<String, Object> constants = new HashMap<>();
-        File cache = RNAlivePushModule.getCache();
-        File config = null;
-        if (cache != null) {
-            config = new File(cache.getPath(), RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
+        String applicationPath = this.getApplicationPath();
+        String alivePushConfigPath = "";
+        String versionName = "";
+        int versionCode = 0;
+        String bundlePath = "";
+
+        if (applicationPath != null) {
+            File alivePushConfigFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
+            if (!alivePushConfigFile.exists()) {
+                try {
+                    alivePushConfigFile.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            alivePushConfigPath = alivePushConfigFile.getPath();
         }
-        constants.put("CachePath", cache != null ? cache.getPath() : "");
-        constants.put("AlivePushConfigPath", config != null ? config.getPath() : "");
-        constants.put("VersionName", BuildConfig.VERSION_NAME);
-        constants.put("VersionCode", BuildConfig.VERSION_CODE);
+
+        JSONObject alivePushConfig = this.getAlivePushConfig();
+        if (alivePushConfig != null) {
+            try {
+                bundlePath = alivePushConfig.getString("path");
+                File bundleFile = new File(bundlePath);
+                if (!bundleFile.exists()) {
+                    bundlePath = "";
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        PackageManager packageManager = this.reactContext.getPackageManager();
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(this.reactContext.getPackageName(), 0);
+            versionName = packageInfo.versionName;
+            versionCode = packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        constants.put("JSBundleFile", bundlePath);
+        constants.put("CachePath", applicationPath);
+        constants.put("AlivePushConfigPath", alivePushConfigPath);
+        constants.put("VersionName", versionName);
+        constants.put("VersionCode", versionCode);
         return constants;
     }
 

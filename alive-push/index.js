@@ -5,13 +5,14 @@ import RNDeviceInfo from 'react-native-device-info'
 import {unzip} from 'react-native-zip-archive'
 
 const host = "http://172.16.30.157:8080/";
+
 const {RNAlivePush}=NativeModules;
 const alivePushFeedbackType = {
 	downloadSuccess: 1,
 	installSuccess: 2
 };
 const dim = Dimensions.get("window");
-console.log(dim);
+console.log("Dimensions", dim);
 
 export const AlivePushStatus = {
 	beginCheck: "BEGINCHECK",
@@ -26,16 +27,18 @@ export const AlivePushStatus = {
 	complete: "COMPLETE"
 };
 
-console.log("RNAlivePush:",RNAlivePush);
+console.log("RNAlivePush", RNAlivePush);
 
-let _deviceInfo = null, _appInfo = null;
+let _deviceInfo = null;
 
-type LogFormData={
+type FeedFormData={
 	type:alivePushFeedbackType
 }
 
 type AlivePushOption={
-	deploymentKey:String
+	deploymentKey:String,
+	host:String,
+	onBeforeRestart:Function
 }
 
 type APPInfo={
@@ -74,9 +77,9 @@ function objectToBase64Sync(obj: Object): String {
 	return RNFetchBlob.base64.encode(str, 'base64');
 }
 
-function getFilenameSync(url: String): String {
-	return url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
-}
+// function getFilenameSync(url: String): String {
+// 	return url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
+// }
 
 export class DeviceInfo {
 	constructor() {
@@ -122,9 +125,10 @@ let alivePush = (options: AlivePushOption)=> {
 	let decorator = (RootComponent) => {
 		return class AlivePushComponent extends Component {
 
-			restart(){
+			restart() {
 				RNAlivePush.restart()
 			}
+
 			constructor(props) {
 				super(props);
 				this.options = options;
@@ -162,6 +166,10 @@ let alivePush = (options: AlivePushOption)=> {
 				this.sync();
 			}
 
+			buildUrlSync(url: String): String {
+				return `${this.options.host || host}${url}`
+			}
+
 
 			getDeviceInfo(): DeviceInfo {
 				return new Promise((resolve, reject)=> {
@@ -174,25 +182,23 @@ let alivePush = (options: AlivePushOption)=> {
 			}
 
 			async getAppInfo(): APPInfo {
-				if (_appInfo) {
-					return Promise.resolve(_appInfo);
-				}
+
 				return this.getConfig().then(config=> {
-					_appInfo = {
+					return {
 						Binary: RNAlivePush.VersionName,
 						Inner: config.version || 0,
 						DeploymentKey: this.options.deploymentKey
 					};
-					return _appInfo;
 				});
 			}
 
 			async buildHeaders(): Object {
 				let device = await this.getDeviceInfo();
 				let app = await this.getAppInfo();
+				console.log("appinfo = ", app);
 				let headers = {
 					device: device.toBase64Sync(),
-					contentType: 'application/json',
+					'Content-Type': 'application/json',
 					app: objectToBase64Sync(app)
 				};
 				console.log('headers', headers);
@@ -202,7 +208,7 @@ let alivePush = (options: AlivePushOption)=> {
 			async checkUpdate(): ResponseJSON {
 				let headers = await this.buildHeaders();
 				this.statusChangeCallback(AlivePushStatus.checking);
-				let res = await RNFetchBlob.fetch("GET", `${host}main/checkupdate`, headers);
+				let res = await RNFetchBlob.fetch("GET", this.buildUrlSync("main/checkupdate"), headers);
 				let json = res.json();
 				return json;
 			}
@@ -214,9 +220,9 @@ let alivePush = (options: AlivePushOption)=> {
 				if (!/^(http|https)/.test(url)) {
 					throw new Error("url is invalid");
 				}
-				if (!/\.zip$/i.test(url)) {
-					throw new Error("package url must be end with '.zip'");
-				}
+				// if (!/\.zip$/i.test(url)) {
+				// 	throw new Error("package url must be end with '.zip'");
+				// }
 				let headers = await this.buildHeaders();
 				this.statusChangeCallback(AlivePushStatus.downloading);
 				return RNFetchBlob.config({
@@ -225,12 +231,9 @@ let alivePush = (options: AlivePushOption)=> {
 					.progress(this.downloadProgressCallback);
 			}
 
-			async log(data?: LogFormData = {type: alivePushFeedbackType.downloadSuccess}): ResponseJSON {
+			async feedback(data?: FeedFormData = {type: alivePushFeedbackType.downloadSuccess}): ResponseJSON {
 				let headers = await this.buildHeaders();
-				console.log(headers);
-				let res = await RNFetchBlob.fetch("POST", `${host}main/feedback`, headers, JSON.stringify(data));
-				let json = res.json();
-				return json;
+				RNFetchBlob.fetch("POST", this.buildUrlSync('main/feedback'), headers, JSON.stringify(data));
 			}
 
 			getConfig(): AlivePushConfig {
@@ -256,12 +259,11 @@ let alivePush = (options: AlivePushOption)=> {
 								resolve(json);
 							});
 							readStream.onError(err=> {
-								reject(err);
+								//reject(err);
+								resolve({});
 							});
 							readStream.open();
 						});
-					}).catch(err=> {
-						return {};
 					});
 			}
 
@@ -295,6 +297,10 @@ let alivePush = (options: AlivePushOption)=> {
 						// delete package cache
 						return RNFetchBlob.fs.unlink(path)
 							.then(()=> {
+								// console.feedback('unzip path files :');
+								// RNFetchBlob.fs.ls(unzipPath).then(files=> {
+								// 	console.feedback(files);
+								// });
 								return unzipPath;
 							});
 					})
@@ -307,35 +313,45 @@ let alivePush = (options: AlivePushOption)=> {
 					this.statusChangeCallback(AlivePushStatus.endCheck);
 					console.log("packageInfo", packageInfo);
 					if (packageInfo.success && packageInfo.data) {
+						await this.updateConfig({
+							version: packageInfo.data.inner
+						});
 						this.statusChangeCallback(AlivePushStatus.beginDownload);
 						let newPackage = await this.downloadPackage(packageInfo.data.url);
 						this.statusChangeCallback(AlivePushStatus.endDownload);
-						this.log();
+						this.feedback();
 						let packagePath = newPackage.path();
 						this.statusChangeCallback(AlivePushStatus.beginUnzip);
-						let unzipPath = await this.unzipPackage(packagePath, getFilenameSync(packageInfo.data.url));
+						let unzipPath = await this.unzipPackage(packagePath, packageInfo.data.inner);
 						this.statusChangeCallback(AlivePushStatus.endUnzip);
-						let bundlePath = `${unzipPath}/index.${Platform.OS}.js`;
+						let bundlePath = `${unzipPath}/app/index.${Platform.OS}.js`;
 						console.log(`new bundle path = ${bundlePath},inner version = ${packageInfo.data.inner}`);
 						await this.updateConfig({
 							path: bundlePath,
-							version: packageInfo.data.inner,
 							lastUpdateTime: new Date(),
 							install: false
 						});
 						this.statusChangeCallback(AlivePushStatus.complete);
-						RNAlivePush.restart();
+						if (this.options.onBeforeRestart) {
+							this.options.onBeforeRestart(RNAlivePush.restart);
+						}
 					}
 					else {
 						let config = await this.getConfig();
-						if (!config.install) {
-							this.log({type: alivePushFeedbackType.installSuccess});
-							this.updateConfig({
-								install: true
-							});
+						if (config.path) {
+							console.log('JSBundleFile', RNAlivePush.JSBundleFile);
+							if (config.path === RNAlivePush.JSBundleFile) {
+								if (!config.install) {
+									this.feedback({type: alivePushFeedbackType.installSuccess});
+									this.updateConfig({
+										install: true
+									});
+								}
+							}
 						}
 						this.statusChangeCallback(AlivePushStatus.complete);
 					}
+					console.log('app start from ' + RNAlivePush.JSBundleFile);
 				}
 				catch (ex) {
 					if (this.errorCallback) {
