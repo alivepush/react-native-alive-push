@@ -31,7 +31,7 @@ RCT_EXPORT_METHOD(restart)
 {
   UIWindow *window = [[UIApplication sharedApplication] valueForKeyPath:@"delegate.window"];
   if(!window){
-      window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   }
   
   NSURL* jsCodeLocation = [[RNAlivePush alloc] getJSBundleFile];
@@ -52,21 +52,43 @@ RCT_EXPORT_METHOD(restart)
   
   NSURL *jsCodeLocation;
   
+#ifdef DEBUG
+  jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
   
-  if([[NSFileManager defaultManager] fileExistsAtPath:[self getAlivePushConfigPath]]){
-    
-    NSDictionary *dic = [[NSDictionary alloc] initWithContentsOfFile:[self getAlivePushConfigPath]];
-    NSString *mainbundleJsPath = [dic objectForKey:@"path"];
-    if([[NSFileManager defaultManager] fileExistsAtPath:mainbundleJsPath]){
-      jsCodeLocation = [NSURL fileURLWithPath:mainbundleJsPath];
-    }
-    else{
-      jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
-    }
+#else
+  
+  NSString *mainbundleJsPath = [[self getJSBundleFilePath] stringByAppendingPathComponent:@"index.bundle.js"];
+  BOOL isDirectory;
+  
+  if([[NSFileManager defaultManager] fileExistsAtPath:mainbundleJsPath isDirectory:&isDirectory]){
+    jsCodeLocation = [NSURL fileURLWithPath:mainbundleJsPath];
   }
   else{
     jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
   }
+  
+  
+  //    if([[NSFileManager defaultManager] fileExistsAtPath:[self getAlivePushConfigPath]]){
+  //
+  //        // NSDictionary *dic = [[NSDictionary alloc] initWithContentsOfFile:[self getAlivePushConfigPath]];
+  //        // NSString *mainbundleJsPath = [dic objectForKey:@"path"];
+  //        NSString *mainbundleJsPath = [self getJSBundleFilePath];
+  //        BOOL isDirectory;
+  //
+  //        if([[NSFileManager defaultManager] fileExistsAtPath:mainbundleJsPath isDirectory:&isDirectory]){
+  //            jsCodeLocation = [NSURL fileURLWithPath:[mainbundleJsPath stringByAppendingPathComponent:@"index.bundle.js"]];
+  //        }
+  //        else{
+  //            jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
+  //        }
+  //    }
+  //    else{
+  //        jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
+  //    }
+  
+#endif
+  
+  
   
   return jsCodeLocation;
 }
