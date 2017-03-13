@@ -1,5 +1,12 @@
 # react-native-alive-push
 
+<!-- badge -->
+[![npm version](https://img.shields.io/npm/v/react-native-alive-push.svg)](https://www.npmjs.com/package/react-native-alive-push)
+[![npm license](https://img.shields.io/npm/l/react-native-alive-push.svg)](https://www.npmjs.com/package/react-native-alive-push)
+[![npm download](https://img.shields.io/npm/dm/react-native-alive-push.svg)](https://www.npmjs.com/package/react-native-alive-push)
+[![npm download](https://img.shields.io/npm/dt/react-native-alive-push.svg)](https://www.npmjs.com/package/react-native-alive-push)
+<!-- endbadge -->
+
 ## 依赖项
 
 需要依赖以下library,请先进行安装
