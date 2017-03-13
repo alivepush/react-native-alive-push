@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:readme":"node_modules/documentation/bin/documentation.js build index.js -f md -o README.md -w"
   },
   "keywords": [
     "react-native"
@@ -18,5 +19,7 @@
     "react-native-fetch-blob": "^0.10.2",
     "react-native-zip-archive": "^1.0.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "documentation": "^4.0.0-beta.18"
+  }
 }

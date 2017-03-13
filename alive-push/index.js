@@ -1,8 +1,3 @@
-/**React Native Library 'alive-push'
- * @author m860
- * @licence MIT
- * @copyright alivepush.com
- * */
 
 import {NativeModules, Platform, Dimensions, PixelRatio} from 'react-native'
 import React, {Component} from 'react'
@@ -13,11 +8,14 @@ import {unzip} from 'react-native-zip-archive'
 const host = "http://172.16.30.157:8080/";
 
 const {RNAlivePush}=NativeModules;
+
 const alivePushFeedbackType = {
 	downloadSuccess: 1,
 	installSuccess: 2
 };
+
 const dim = Dimensions.get("window");
+
 console.log("Dimensions", dim);
 
 export const AlivePushStatus = {
@@ -37,41 +35,6 @@ console.log("RNAlivePush", RNAlivePush);
 
 let _deviceInfo = null;
 
-type FeedFormData={
-	type:alivePushFeedbackType
-}
-
-type AlivePushOption={
-	deploymentKey:String,
-	host:String,
-	onComplete:Function
-}
-
-type APPInfo={
-	Binary:String,
-	Inner:Number,
-	DeploymentKey:String
-}
-
-type AlivePushConfig={
-	// bundle path
-	path:String,
-	// bundle version
-	version:String,
-	// last time update config file
-	lastUpdateTime:Number,
-	//
-	install:Boolean
-}
-
-type ResponseJSON={
-	success:Boolean,
-	data:Object,
-	msg:String,
-	code:Number
-}
-
-
 function objectToBase64Sync(obj: Object): String {
 	let data = [];
 	for (let key in obj) {
@@ -83,13 +46,15 @@ function objectToBase64Sync(obj: Object): String {
 	return RNFetchBlob.base64.encode(str, 'base64');
 }
 
-// function getFilenameSync(url: String): String {
-// 	return url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
-// }
 
+/**DeviceInfo,设备相关信息
+ * @class DeviceInfo
+ * */
 export class DeviceInfo {
+	/**@constructor
+	 * @example
+	 * let deviceInfo = new DeviceInfo()*/
 	constructor() {
-
 		this.UniqueID = RNDeviceInfo.getUniqueID();
 		this.Manufacturer = RNDeviceInfo.getManufacturer();
 		this.Brand = RNDeviceInfo.getBrand();
@@ -114,12 +79,19 @@ export class DeviceInfo {
 		this.Ratio = PixelRatio.get()
 
 	}
-
+	/**将设备信息转换为key-value,并进行base64编码
+	 * @public
+	 * @example
+	 * deviceInfo.toBase64Sync()*/
 	toBase64Sync() {
 		return objectToBase64Sync(this);
 	}
 }
 
+/**alivePush
+ * @flow
+ * @return {Function}
+ * @return {AlivePushComponent}*/
 let alivePush = (options: AlivePushOption)=> {
 
 	if (!options) {
@@ -129,12 +101,11 @@ let alivePush = (options: AlivePushOption)=> {
 		throw new Error('options.deploymentKey is required');
 	}
 	let decorator = (RootComponent) => {
+		/**@class*/
 		return class AlivePushComponent extends Component {
-
 			restart() {
 				RNAlivePush.restart()
 			}
-
 			constructor(props) {
 				super(props);
 				this.options = options;
@@ -144,7 +115,6 @@ let alivePush = (options: AlivePushOption)=> {
 				};
 				this.errorCallback = null;
 			}
-
 			componentDidMount() {
 				let rootComponentInstance = this.refs.rootComponent;
 
@@ -384,3 +354,42 @@ let alivePush = (options: AlivePushOption)=> {
 
 
 export default alivePush;
+
+type FeedFormData={
+	type:alivePushFeedbackType
+}
+
+/**@typedef AlivePushOption*/
+type AlivePushOption={
+	deploymentKey:String,
+	host:String,
+	onComplete:Function
+}
+
+type APPInfo={
+	Binary:String,
+	Inner:Number,
+	DeploymentKey:String
+}
+
+type AlivePushConfig={
+	// bundle path
+	path:String,
+	// bundle version
+	version:String,
+	// last time update config file
+	lastUpdateTime:Number,
+	//
+	install:Boolean
+}
+
+type ResponseJSON={
+	success:Boolean,
+	data:Object,
+	msg:String,
+	code:Number
+}
+
+/**
+ * @author m860
+ * */
