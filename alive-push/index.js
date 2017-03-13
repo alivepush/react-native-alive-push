@@ -1,3 +1,9 @@
+/**React Native Library 'alive-push'
+ * @author m860
+ * @licence MIT
+ * @copyright alivepush.com
+ * */
+
 import {NativeModules, Platform, Dimensions, PixelRatio} from 'react-native'
 import React, {Component} from 'react'
 import RNFetchBlob from 'react-native-fetch-blob'
@@ -38,7 +44,7 @@ type FeedFormData={
 type AlivePushOption={
 	deploymentKey:String,
 	host:String,
-	onBeforeRestart:Function
+	onComplete:Function
 }
 
 type APPInfo={
@@ -316,6 +322,7 @@ let alivePush = (options: AlivePushOption)=> {
 						await this.updateConfig({
 							version: packageInfo.data.inner
 						});
+
 						this.statusChangeCallback(AlivePushStatus.beginDownload);
 						let newPackage = await this.downloadPackage(packageInfo.data.url);
 						this.statusChangeCallback(AlivePushStatus.endDownload);
@@ -332,8 +339,8 @@ let alivePush = (options: AlivePushOption)=> {
 							install: false
 						});
 						this.statusChangeCallback(AlivePushStatus.complete);
-						if (this.options.onBeforeRestart) {
-							this.options.onBeforeRestart(RNAlivePush.restart);
+						if (this.options.onComplete) {
+							this.options.onComplete(packageInfo.data.releaseNote,RNAlivePush.restart);
 						}
 					}
 					else {

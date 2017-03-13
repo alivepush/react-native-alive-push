@@ -20,10 +20,10 @@ import RNFetchBlob from 'react-native-fetch-blob'
 
 @alivePush({
 	deploymentKey: "2a2b1bbefc9450b556c034dd86fd3ab2",
-	onBeforeRestart: (restartCallback)=> {
+	onComplete: (releaseNotes,restartCallback)=> {
 		Alert.alert(
-			'提示',
-			'是否马上进行重启?',
+			'新版本已安装',
+			`${releaseNotes}\n是否马上进行重启?`,
 			[
 				{text: '否'},
 				{
