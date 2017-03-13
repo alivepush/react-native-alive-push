@@ -1,10 +1,12 @@
 # react-native-alive-push
 
 <!-- badge -->
+
 [![npm version](https://img.shields.io/npm/v/react-native-alive-push.svg)](https://www.npmjs.com/package/react-native-alive-push)
 [![npm license](https://img.shields.io/npm/l/react-native-alive-push.svg)](https://www.npmjs.com/package/react-native-alive-push)
 [![npm download](https://img.shields.io/npm/dm/react-native-alive-push.svg)](https://www.npmjs.com/package/react-native-alive-push)
 [![npm download](https://img.shields.io/npm/dt/react-native-alive-push.svg)](https://www.npmjs.com/package/react-native-alive-push)
+
 <!-- endbadge -->
 
 ## 依赖项
@@ -95,7 +97,7 @@ deviceInfo.toBase64Sync()
 
 ## alivePush
 
-alivePush
+alivePush module
 
 **Parameters**
 
@@ -127,6 +129,21 @@ Returns **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 Returns **[AlivePushComponent](#alivepushcomponent)** 
 
 ## AlivePushComponent
+
+## AlivePushStatus
+
+**Properties**
+
+-   `beginCheck` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 'BEGINCHECK'
+-   `checking` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 'CHECKING'
+-   `endCheck` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 'ENDCHECK'
+-   `beginDownload` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 'BEGINDOWNLOAD'
+-   `downloading` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 'DOWNLOADING'
+-   `endDownload` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 'ENDDOWNLOAD'
+-   `beginUnzip` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 'BEGINUNZIP'
+-   `unzipping` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 'UNZIPPING'
+-   `endUnzip` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 'ENDUNZIP'
+-   `complete` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 'COMPLETE'
 
 ## AlivePushOption
 

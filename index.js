@@ -18,18 +18,7 @@ const dim = Dimensions.get("window");
 
 console.log("Dimensions", dim);
 
-export const AlivePushStatus = {
-	beginCheck: "BEGINCHECK",
-	checking: "CHECKING",
-	endCheck: "ENDCHECK",
-	beginDownload: "BEGINDOWNLOAD",
-	downloading: "DOWNLOADING",
-	endDownload: "ENDDOWNLOAD",
-	beginUnzip: "BEGINUNZIP",
-	unzipping: "UNZIPPING",
-	endUnzip: "ENDUNZIP",
-	complete: "COMPLETE"
-};
+
 
 console.log("RNAlivePush", RNAlivePush);
 
@@ -88,8 +77,12 @@ export class DeviceInfo {
 	}
 }
 
-/**alivePush
+/**alivePush module
+ *
+ * @module alivePush
+ *
  * @flow
+ *
  * @example
  * //使用wrapper的方式
  * import alivePush from 'react-native-alive-push'
@@ -97,6 +90,7 @@ export class DeviceInfo {
  * 	...
  * }
  * const AppWrapper=alivePush({...})(MyApp)
+ *
  * @example
  * //使用es7的decorator
  * \@alivePush({
@@ -105,6 +99,7 @@ export class DeviceInfo {
  * class MyApp extends React.Component{
  * 	...
  * }
+ *
  * @return {Function}
  * @return {AlivePushComponent}
  * */
@@ -125,6 +120,7 @@ let alivePush = (options: AlivePushOption)=> {
 			constructor(props) {
 				super(props);
 				this.options = options;
+				/**@event alivePush#alivePushStatusChange*/
 				this.statusChangeCallback = ()=> {
 				};
 				this.downloadProgressCallback = ()=> {
@@ -366,6 +362,31 @@ let alivePush = (options: AlivePushOption)=> {
 	} else {
 		return decorator;
 	}
+};
+
+/**@typedef
+ * @property {String} beginCheck 'BEGINCHECK'
+ * @property {String} checking 'CHECKING'
+ * @property {String} endCheck 'ENDCHECK'
+ * @property {String} beginDownload 'BEGINDOWNLOAD'
+ * @property {String} downloading 'DOWNLOADING'
+ * @property {String} endDownload 'ENDDOWNLOAD'
+ * @property {String} beginUnzip 'BEGINUNZIP'
+ * @property {String} unzipping 'UNZIPPING'
+ * @property {String} endUnzip 'ENDUNZIP'
+ * @property {String} complete 'COMPLETE'
+ * */
+export const AlivePushStatus = {
+	beginCheck: "BEGINCHECK",
+	checking: "CHECKING",
+	endCheck: "ENDCHECK",
+	beginDownload: "BEGINDOWNLOAD",
+	downloading: "DOWNLOADING",
+	endDownload: "ENDDOWNLOAD",
+	beginUnzip: "BEGINUNZIP",
+	unzipping: "UNZIPPING",
+	endUnzip: "ENDUNZIP",
+	complete: "COMPLETE"
 };
 
 
