@@ -90,8 +90,24 @@ export class DeviceInfo {
 
 /**alivePush
  * @flow
+ * @example
+ * //使用wrapper的方式
+ * import alivePush from 'react-native-alive-push'
+ * class MyApp extends React.Component{
+ * 	...
+ * }
+ * const AppWrapper=alivePush({...})(MyApp)
+ * @example
+ * //使用es7的decorator
+ * \@alivePush({
+ * 	...
+ * })
+ * class MyApp extends React.Component{
+ * 	...
+ * }
  * @return {Function}
- * @return {AlivePushComponent}*/
+ * @return {AlivePushComponent}
+ * */
 let alivePush = (options: AlivePushOption)=> {
 
 	if (!options) {
@@ -101,7 +117,7 @@ let alivePush = (options: AlivePushOption)=> {
 		throw new Error('options.deploymentKey is required');
 	}
 	let decorator = (RootComponent) => {
-		/**@class*/
+		/**@typedef*/
 		return class AlivePushComponent extends Component {
 			restart() {
 				RNAlivePush.restart()
@@ -359,11 +375,15 @@ type FeedFormData={
 	type:alivePushFeedbackType
 }
 
-/**@typedef AlivePushOption*/
+/**@typedef
+ * @property {String} deploymentKey - 部署的key
+ * @property {String} [host] - 服务器的地址
+ * @property {Function} [onComplete] - 当alivePush完成时执行.
+ * */
 type AlivePushOption={
 	deploymentKey:String,
-	host:String,
-	onComplete:Function
+	host:?String,
+	onComplete:?Function
 }
 
 type APPInfo={

@@ -39,6 +39,27 @@ alivePush
 
 -   `options` **[AlivePushOption](#alivepushoption)** 
 
+**Examples**
+
+```javascript
+//使用wrapper的方式
+import alivePush from 'react-native-alive-push'
+class MyApp extends React.Component{
+	...
+}
+const AppWrapper=alivePush({...})(MyApp)
+```
+
+```javascript
+//使用es7的decorator
+\@alivePush({
+	...
+})
+class MyApp extends React.Component{
+	...
+}
+```
+
 Returns **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** 
 
 Returns **[AlivePushComponent](#alivepushcomponent)** 
@@ -47,13 +68,13 @@ Returns **[AlivePushComponent](#alivepushcomponent)**
 
 ## AlivePushOption
 
-Type: {deploymentKey: [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String), host: [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String), onComplete: [Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)}
+Type: {deploymentKey: [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String), host: [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?, onComplete: [Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?}
 
 **Properties**
 
--   `deploymentKey` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `host` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `onComplete` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** 
+-   `deploymentKey` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 部署的key
+-   `host` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?** 服务器的地址
+-   `onComplete` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 当alivePush完成时执行.
 
 ## 
 
