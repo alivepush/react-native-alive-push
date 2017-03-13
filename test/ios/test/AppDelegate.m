@@ -21,7 +21,7 @@
   NSURL *jsCodeLocation;
 
   //jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
-  jsCodeLocation = [[RNAlivePush alloc] getJSBundleFile];
+  jsCodeLocation = [RNAlivePush getJSBundleFile];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                       moduleName:@"test"
                                                initialProperties:nil

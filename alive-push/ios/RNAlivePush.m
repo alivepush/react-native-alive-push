@@ -18,11 +18,11 @@ RCT_EXPORT_MODULE()
 
 - (NSDictionary *)constantsToExport
 {
-  NSDictionary *dic = @{ @"CachePath": [self documentPath],
-                         @"AlivePushConfigPath":[self getAlivePushConfigPath],
-                         @"VersionName":[self getVersionName],
-                         @"VersionCode":[self getVersinCode],
-                         @"JSBundleFilePath": [self getJSBundleFilePath]};
+  NSDictionary *dic = @{ @"CachePath": [RNAlivePush documentPath],
+                         @"AlivePushConfigPath":[RNAlivePush getAlivePushConfigPath],
+                         @"VersionName":[RNAlivePush getVersionName],
+                         @"VersionCode":[RNAlivePush getVersinCode],
+                         @"JSBundleFilePath": [RNAlivePush getJSBundleFilePath]};
   return dic;
 }
 
@@ -34,7 +34,7 @@ RCT_EXPORT_METHOD(restart)
     window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   }
   
-  NSURL* jsCodeLocation = [[RNAlivePush alloc] getJSBundleFile];
+  NSURL* jsCodeLocation = [RNAlivePush  getJSBundleFile];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                       moduleName:@"test"
                                                initialProperties:nil
@@ -48,7 +48,7 @@ RCT_EXPORT_METHOD(restart)
   
 }
 
-- (NSURL*)getJSBundleFile{
++ (NSURL*)getJSBundleFile{
   
   NSURL *jsCodeLocation;
   
@@ -96,30 +96,30 @@ RCT_EXPORT_METHOD(restart)
 
 #pragma mark custom methods ###
 
-- (NSString*)documentPath{
++ (NSString*)documentPath{
   
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *docDir = [paths objectAtIndex:0];
   return docDir;
 }
 
-- (NSString*)getAlivePushConfigPath{
++ (NSString*)getAlivePushConfigPath{
   
   return [[self documentPath] stringByAppendingPathComponent:kAlivePushConfigPath];
 }
 
-- (NSString*)getJSBundleFilePath{
++ (NSString*)getJSBundleFilePath{
   return [[self documentPath] stringByAppendingPathComponent:kJSBundleFilePath];
 }
 
-- (NSString*)getVersionName{
++ (NSString*)getVersionName{
   
   NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
   NSString *app_Name = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
   return app_Name;
 }
 
-- (NSString*)getVersinCode{
++ (NSString*)getVersinCode{
   
   NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
   NSString *app_Version = [infoDictionary objectForKey:@"CFBundleVersion"];
