@@ -48,9 +48,7 @@ protected String getJSBundleFile() {
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions{
     ...
-
     NSURL *jsCodeLocation = [RNAlivePush getJSBundleFile];
-
     ...
 } 
 ```
