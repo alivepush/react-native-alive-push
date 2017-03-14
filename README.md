@@ -9,15 +9,15 @@
 
 <!-- endbadge -->
 
-## 依赖项
+## Getting started
+
+### 依赖项
 
 需要依赖以下library,请先进行安装
 
 -   react-native-device-info
 -   react-native-fetch-blob
 -   react-native-zip-archive
-
-## Getting started
 
 `$ npm install react-native-alive-push --save`
 
@@ -63,8 +63,9 @@ protected String getJSBundleFile() {
 
 **Examples**
 
+_class wrapper_
+
 ```javascript
-//使用wrapper的方式
 import alivePush from 'react-native-alive-push'
 class MyApp extends React.Component{
 	...
@@ -72,8 +73,9 @@ class MyApp extends React.Component{
 const AppWrapper=alivePush({...})(MyApp)
 ```
 
+_Decorator_
+
 ```javascript
-//使用es7的decorator
 \@alivePush({
 	...
 })
@@ -82,39 +84,26 @@ class MyApp extends React.Component{
 }
 ```
 
-Returns **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** 
-
-Returns **[AlivePushComponent](#alivepushcomponent)** 
-
-## AlivePushComponent
-
-**Examples**
+_事件回调,目前仅支持以下列出的事件回调_
 
 ```javascript
+\@alivePush
 class MyApp extends React.Component{
-    alivePushStatusChange(status){
+    alivePushStatusChange(status:AlivePushStatus){
         // do something
     }
-    alivePushDownloadProgress(){
+    alivePushDownloadProgress(progress){
         // do something
     }
-    alivePushError(){
+    alivePushError(err){
         // do something
     }
 }
 ```
 
-### statusChangeCallback
+Returns **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** 
 
-当状态改变时发生
-
-### downloadProgressCallback
-
-下载进度
-
-### errorCallback
-
-错误处理
+Returns **AlivePushComponent** 
 
 ## AlivePushStatus
 
@@ -140,17 +129,6 @@ Type: {deploymentKey: [String](https://developer.mozilla.org/en-US/docs/Web/Java
 -   `deploymentKey` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 部署的key
 -   `host` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?** 服务器的地址
 -   `onComplete` **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)?** 当alivePush完成时执行.
-
-## DeviceInfo
-
-DeviceInfo,设备相关信息
-
-**Examples**
-
-```javascript
-import {DeviceInfo} from 'react-native-alive-push'
-let deviceInfo = new DeviceInfo()
-```
 
 ## 
 

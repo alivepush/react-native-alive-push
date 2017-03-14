@@ -39,23 +39,35 @@ function objectToBase64Sync(obj: Object): String {
 /**
  * @module alivePush
  *
- * @flow
+ * @eventlistener alivePushStatusChange
  *
- * @example
- * //使用wrapper的方式
+ * @example <caption>class wrapper</caption>
  * import alivePush from 'react-native-alive-push'
  * class MyApp extends React.Component{
  * 	...
  * }
  * const AppWrapper=alivePush({...})(MyApp)
  *
- * @example
- * //使用es7的decorator
+ * @example <caption>Decorator</caption>
  * \@alivePush({
  * 	...
  * })
  * class MyApp extends React.Component{
  * 	...
+ * }
+ *
+ * @example <caption>事件回调,目前仅支持以下列出的事件回调</caption>
+ * \@alivePush
+ * class MyApp extends React.Component{
+ *     alivePushStatusChange(status:AlivePushStatus){
+ *         // do something
+ *     }
+ *     alivePushDownloadProgress(progress){
+ *         // do something
+ *     }
+ *     alivePushError(err){
+ *         // do something
+ *     }
  * }
  *
  * @return {Function}
@@ -71,23 +83,6 @@ let alivePush = (options: AlivePushOption)=> {
 		throw new Error('options.deploymentKey is required');
 	}
 	let decorator = (RootComponent) => {
-		/**
-		 * @typedef
-		 *
-		 * @example
-		 * class MyApp extends React.Component{
-		 *     alivePushStatusChange(status){
-		 *         // do something
-		 *     }
-		 *     alivePushDownloadProgress(){
-		 *         // do something
-		 *     }
-		 *     alivePushError(){
-		 *         // do something
-		 *     }
-		 * }
-		 *
-		 * */
 		return class AlivePushComponent extends Component {
 			restart() {
 				RNAlivePush.restart()
@@ -95,19 +90,10 @@ let alivePush = (options: AlivePushOption)=> {
 			constructor(props) {
 				super(props);
 				this.options = options;
-				/**当状态改变时发生
-				 * @eventlistener alivePushStatusChange
-				 * */
 				this.statusChangeCallback = ()=> {
 				};
-				/**下载进度
-				 * @eventlistener
-				 * */
 				this.downloadProgressCallback = ()=> {
 				};
-				/**错误处理
-				 * @eventlistener
-				 * */
 				this.errorCallback = null;
 			}
 			componentDidMount() {
@@ -390,12 +376,6 @@ type AlivePushOption={
 	onComplete:?Function
 }
 
-/**DeviceInfo,设备相关信息
- * @class DeviceInfo
- * @example
- * import {DeviceInfo} from 'react-native-alive-push'
- * let deviceInfo = new DeviceInfo()
- * */
 export class DeviceInfo {
 	constructor() {
 		this.UniqueID = RNDeviceInfo.getUniqueID();
