@@ -41,9 +41,12 @@ protected String getJSBundleFile() {
 
 #### IOS
 
-```java
-1.在AppDelegate.m中添加 #import <RNAlivePush/RNAlivePush.h>
-2.- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions{
+在AppDelegate.m中添加 
+
+```objective-c
+#import <RNAlivePush/RNAlivePush.h>
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions{
     ...
     //修改
     NSURL *jsCodeLocation = [RNAlivePush getJSBundleFile];
