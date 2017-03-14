@@ -246,7 +246,6 @@ let alivePush = (options: AlivePushOption)=> {
 
 			async unzipPackage(path: String, filename: String): String {
 				console.log(`unzip package file name = ${filename}`);
-				this.statusChangeCallback(AlivePushStatus.unzipping);
 				let targetPath = `${RNAlivePush.CachePath}/${filename}`;
 				console.log(`unzip ${path} to ${targetPath}`);
 				return unzip(path, targetPath)
@@ -265,23 +264,19 @@ let alivePush = (options: AlivePushOption)=> {
 
 			async sync(): void {
 				try {
-					this.statusChangeCallback(AlivePushStatus.beginCheck);
+					this.statusChangeCallback(AlivePushStatus.beforeCheck);
 					let packageInfo = await this.checkUpdate();
-					this.statusChangeCallback(AlivePushStatus.endCheck);
+					this.statusChangeCallback(AlivePushStatus.afterCheck,packageInfo);
 					console.log("packageInfo", packageInfo);
 					if (packageInfo.success && packageInfo.data) {
 						await this.updateConfig({
 							version: packageInfo.data.inner
 						});
-
-						this.statusChangeCallback(AlivePushStatus.beginDownload);
+						this.statusChangeCallback(AlivePushStatus.beforeDownload);
 						let newPackage = await this.downloadPackage(packageInfo.data.url);
-						this.statusChangeCallback(AlivePushStatus.endDownload);
 						this.feedback();
 						let packagePath = newPackage.path();
-						this.statusChangeCallback(AlivePushStatus.beginUnzip);
 						let unzipPath = await this.unzipPackage(packagePath, packageInfo.data.inner);
-						this.statusChangeCallback(AlivePushStatus.endUnzip);
 						let bundlePath = `${unzipPath}/app/index.${Platform.OS}.js`;
 						console.log(`new bundle path = ${bundlePath},inner version = ${packageInfo.data.inner}`);
 						await this.updateConfig({
@@ -289,10 +284,7 @@ let alivePush = (options: AlivePushOption)=> {
 							lastUpdateTime: new Date(),
 							install: false
 						});
-						this.statusChangeCallback(AlivePushStatus.complete);
-						if (this.options.onComplete) {
-							this.options.onComplete(packageInfo.data.releaseNote,RNAlivePush.restart);
-						}
+						this.statusChangeCallback(AlivePushStatus.afterDownload,RNAlivePush.restart);
 					}
 					else {
 						let config = await this.getConfig();
@@ -304,10 +296,11 @@ let alivePush = (options: AlivePushOption)=> {
 									this.updateConfig({
 										install: true
 									});
+									this.statusChangeCallback(AlivePushStatus.install);
 								}
 							}
 						}
-						this.statusChangeCallback(AlivePushStatus.complete);
+
 					}
 					console.log('app start from ' + RNAlivePush.JSBundleFile);
 				}
@@ -334,28 +327,22 @@ let alivePush = (options: AlivePushOption)=> {
 };
 
 /**@typedef
- * @property {String} beginCheck 'BEGINCHECK'
- * @property {String} checking 'CHECKING'
- * @property {String} endCheck 'ENDCHECK'
- * @property {String} beginDownload 'BEGINDOWNLOAD'
- * @property {String} downloading 'DOWNLOADING'
- * @property {String} endDownload 'ENDDOWNLOAD'
- * @property {String} beginUnzip 'BEGINUNZIP'
- * @property {String} unzipping 'UNZIPPING'
- * @property {String} endUnzip 'ENDUNZIP'
- * @property {String} complete 'COMPLETE'
+ * @property {Number} beforeCheck
+ * @property {Number} checking
+ * @property {Number} afterCheck
+ * @property {Number} beforeDownload
+ * @property {Number} downloading
+ * @property {Number} afterDownload
+ * @property {Number} install
  * */
 export const AlivePushStatus = {
-	beginCheck: "BEGINCHECK",
-	checking: "CHECKING",
-	endCheck: "ENDCHECK",
-	beginDownload: "BEGINDOWNLOAD",
-	downloading: "DOWNLOADING",
-	endDownload: "ENDDOWNLOAD",
-	beginUnzip: "BEGINUNZIP",
-	unzipping: "UNZIPPING",
-	endUnzip: "ENDUNZIP",
-	complete: "COMPLETE"
+	beforeCheck: 1,
+	checking: 10,
+	afterCheck: 20,
+	beforeDownload: 30,
+	downloading: 40,
+	afterDownload: 50,
+	install:60,
 };
 
 
@@ -368,12 +355,10 @@ type FeedFormData={
 /**@typedef
  * @property {String} deploymentKey - 部署的key
  * @property {String} [host] - 服务器的地址
- * @property {Function} [onComplete] - 当alivePush完成时执行.
  * */
 type AlivePushOption={
 	deploymentKey:String,
 	host:?String,
-	onComplete:?Function
 }
 
 export class DeviceInfo {
