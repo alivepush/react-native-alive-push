@@ -18,8 +18,6 @@ const dim = Dimensions.get("window");
 
 console.log("Dimensions", dim);
 
-
-
 console.log("RNAlivePush", RNAlivePush);
 
 let _deviceInfo = null;
@@ -36,49 +34,9 @@ function objectToBase64Sync(obj: Object): String {
 }
 
 
-/**DeviceInfo,设备相关信息
- * @class DeviceInfo
- * */
-export class DeviceInfo {
-	/**@constructor
-	 * @example
-	 * let deviceInfo = new DeviceInfo()*/
-	constructor() {
-		this.UniqueID = RNDeviceInfo.getUniqueID();
-		this.Manufacturer = RNDeviceInfo.getManufacturer();
-		this.Brand = RNDeviceInfo.getBrand();
-		this.Model = RNDeviceInfo.getModel();
-		this.DeviceId = RNDeviceInfo.getDeviceId();
-		this.SystemName = RNDeviceInfo.getSystemName();
-		this.SystemVersion = RNDeviceInfo.getSystemVersion();
-		this.BundleId = RNDeviceInfo.getBundleId();
-		this.BuildNumber = RNDeviceInfo.getBuildNumber();
-		this.Version = RNDeviceInfo.getVersion();
-		this.ReadableVersion = RNDeviceInfo.getReadableVersion();
-		this.DeviceName = RNDeviceInfo.getDeviceName();
-		this.UserAgent = RNDeviceInfo.getUserAgent();
-		this.DeviceLocale = RNDeviceInfo.getDeviceLocale();
-		this.DeviceCountry = RNDeviceInfo.getDeviceCountry();
-		this.Timezone = RNDeviceInfo.getTimezone();
-		this.InstanceID = RNDeviceInfo.getInstanceID();
-		this.Emulator = RNDeviceInfo.isEmulator();
-		this.Tablet = RNDeviceInfo.isTablet();
-		this.Width = dim.width;
-		this.Height = dim.height;
-		this.Ratio = PixelRatio.get()
 
-	}
-	/**将设备信息转换为key-value,并进行base64编码
-	 * @public
-	 * @example
-	 * deviceInfo.toBase64Sync()*/
-	toBase64Sync() {
-		return objectToBase64Sync(this);
-	}
-}
 
-/**alivePush module
- *
+/**
  * @module alivePush
  *
  * @flow
@@ -102,6 +60,7 @@ export class DeviceInfo {
  *
  * @return {Function}
  * @return {AlivePushComponent}
+ *
  * */
 let alivePush = (options: AlivePushOption)=> {
 
@@ -112,7 +71,23 @@ let alivePush = (options: AlivePushOption)=> {
 		throw new Error('options.deploymentKey is required');
 	}
 	let decorator = (RootComponent) => {
-		/**@typedef*/
+		/**
+		 * @typedef
+		 *
+		 * @example
+		 * class MyApp extends React.Component{
+		 *     alivePushStatusChange(status){
+		 *         // do something
+		 *     }
+		 *     alivePushDownloadProgress(){
+		 *         // do something
+		 *     }
+		 *     alivePushError(){
+		 *         // do something
+		 *     }
+		 * }
+		 *
+		 * */
 		return class AlivePushComponent extends Component {
 			restart() {
 				RNAlivePush.restart()
@@ -120,11 +95,19 @@ let alivePush = (options: AlivePushOption)=> {
 			constructor(props) {
 				super(props);
 				this.options = options;
-				/**@event alivePush#alivePushStatusChange*/
+				/**当状态改变时发生
+				 * @eventlistener alivePushStatusChange
+				 * */
 				this.statusChangeCallback = ()=> {
 				};
+				/**下载进度
+				 * @eventlistener
+				 * */
 				this.downloadProgressCallback = ()=> {
 				};
+				/**错误处理
+				 * @eventlistener
+				 * */
 				this.errorCallback = null;
 			}
 			componentDidMount() {
@@ -405,6 +388,43 @@ type AlivePushOption={
 	deploymentKey:String,
 	host:?String,
 	onComplete:?Function
+}
+
+/**DeviceInfo,设备相关信息
+ * @class DeviceInfo
+ * @example
+ * import {DeviceInfo} from 'react-native-alive-push'
+ * let deviceInfo = new DeviceInfo()
+ * */
+export class DeviceInfo {
+	constructor() {
+		this.UniqueID = RNDeviceInfo.getUniqueID();
+		this.Manufacturer = RNDeviceInfo.getManufacturer();
+		this.Brand = RNDeviceInfo.getBrand();
+		this.Model = RNDeviceInfo.getModel();
+		this.DeviceId = RNDeviceInfo.getDeviceId();
+		this.SystemName = RNDeviceInfo.getSystemName();
+		this.SystemVersion = RNDeviceInfo.getSystemVersion();
+		this.BundleId = RNDeviceInfo.getBundleId();
+		this.BuildNumber = RNDeviceInfo.getBuildNumber();
+		this.Version = RNDeviceInfo.getVersion();
+		this.ReadableVersion = RNDeviceInfo.getReadableVersion();
+		this.DeviceName = RNDeviceInfo.getDeviceName();
+		this.UserAgent = RNDeviceInfo.getUserAgent();
+		this.DeviceLocale = RNDeviceInfo.getDeviceLocale();
+		this.DeviceCountry = RNDeviceInfo.getDeviceCountry();
+		this.Timezone = RNDeviceInfo.getTimezone();
+		this.InstanceID = RNDeviceInfo.getInstanceID();
+		this.Emulator = RNDeviceInfo.isEmulator();
+		this.Tablet = RNDeviceInfo.isTablet();
+		this.Width = dim.width;
+		this.Height = dim.height;
+		this.Ratio = PixelRatio.get()
+
+	}
+	toBase64Sync() {
+		return objectToBase64Sync(this);
+	}
 }
 
 type APPInfo={
