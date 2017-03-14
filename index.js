@@ -327,6 +327,8 @@ let alivePush = (options: AlivePushOption)=> {
 };
 
 /**@typedef
+ * @constant
+ * @enum {Number}
  * @property {Number} beforeCheck
  * @property {Number} checking
  * @property {Number} afterCheck
@@ -418,4 +420,5 @@ type ResponseJSON={
 
 /**
  * @author m860
+ * @version 0.0.1
  * */

@@ -132,4 +132,5 @@ Type: {deploymentKey: [String](https://developer.mozilla.org/en-US/docs/Web/Java
 
 **Meta**
 
+-   **version**: 0.0.1
 -   **author**: m860
