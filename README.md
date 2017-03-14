@@ -29,7 +29,7 @@ alive-push安装好之后默认会进行link,如果link失败请手动link
 @Nullable
 @Override
 protected String getJSBundleFile() {
-    return RNAlivePushModule.getJSBundleFile();
+    return RNAlivePushModule.getJSBundleFile(MainApplication.this);
 }
 ```
 
