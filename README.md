@@ -11,15 +11,9 @@
 
 ## Getting started
 
-### 依赖项
-
-需要依赖以下library,请先进行安装
-
--   react-native-device-info
--   react-native-fetch-blob
--   react-native-zip-archive
-
 `$ npm install react-native-alive-push --save`
+
+alive-push安装好之后默认会进行link,如果link失败请手动link
 
 ### Mostly automatic installation
 
