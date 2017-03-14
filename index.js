@@ -16,10 +16,6 @@ const alivePushFeedbackType = {
 
 const dim = Dimensions.get("window");
 
-console.log("Dimensions", dim);
-
-console.log("RNAlivePush", RNAlivePush);
-
 let _deviceInfo = null;
 
 function objectToBase64Sync(obj: Object): String {
@@ -133,7 +129,6 @@ let alivePush = (options: AlivePushOption)=> {
 					if (!_deviceInfo) {
 						_deviceInfo = new DeviceInfo();
 					}
-					console.log("device info  = ", _deviceInfo);
 					resolve(_deviceInfo);
 				});
 			}
@@ -152,13 +147,11 @@ let alivePush = (options: AlivePushOption)=> {
 			async buildHeaders(): Object {
 				let device = await this.getDeviceInfo();
 				let app = await this.getAppInfo();
-				console.log("appinfo = ", app);
 				let headers = {
 					device: device.toBase64Sync(),
 					'Content-Type': 'application/json',
 					app: objectToBase64Sync(app)
 				};
-				console.log('headers', headers);
 				return headers;
 			}
 
@@ -209,10 +202,8 @@ let alivePush = (options: AlivePushOption)=> {
 									json = JSON.parse(jsonStr);
 								}
 								catch (ex) {
-									console.error(ex, jsonStr);
 									json = {};
 								}
-								console.log('alive push config', json);
 								resolve(json);
 							});
 							readStream.onError(err=> {
@@ -225,7 +216,6 @@ let alivePush = (options: AlivePushOption)=> {
 			}
 
 			async writeConfig(newConfig: AlivePushConfig): Promise {
-				console.log('will rewrite alive push config', newConfig);
 				let exists = await RNFetchBlob.fs.exists(RNAlivePush.AlivePushConfigPath);
 				let str = JSON.stringify(newConfig);
 				if (exists) {
@@ -245,18 +235,12 @@ let alivePush = (options: AlivePushOption)=> {
 			}
 
 			async unzipPackage(path: String, filename: String): String {
-				console.log(`unzip package file name = ${filename}`);
 				let targetPath = `${RNAlivePush.CachePath}/${filename}`;
-				console.log(`unzip ${path} to ${targetPath}`);
 				return unzip(path, targetPath)
 					.then(unzipPath=> {
 						// delete package cache
 						return RNFetchBlob.fs.unlink(path)
 							.then(()=> {
-								// console.feedback('unzip path files :');
-								// RNFetchBlob.fs.ls(unzipPath).then(files=> {
-								// 	console.feedback(files);
-								// });
 								return unzipPath;
 							});
 					})
@@ -267,7 +251,6 @@ let alivePush = (options: AlivePushOption)=> {
 					this.statusChangeCallback(AlivePushStatus.beforeCheck);
 					let packageInfo = await this.checkUpdate();
 					this.statusChangeCallback(AlivePushStatus.afterCheck,packageInfo);
-					console.log("packageInfo", packageInfo);
 					if (packageInfo.success && packageInfo.data) {
 						await this.updateConfig({
 							version: packageInfo.data.inner
@@ -278,7 +261,6 @@ let alivePush = (options: AlivePushOption)=> {
 						let packagePath = newPackage.path();
 						let unzipPath = await this.unzipPackage(packagePath, packageInfo.data.inner);
 						let bundlePath = `${unzipPath}/app/index.${Platform.OS}.js`;
-						console.log(`new bundle path = ${bundlePath},inner version = ${packageInfo.data.inner}`);
 						await this.updateConfig({
 							path: bundlePath,
 							lastUpdateTime: new Date(),
@@ -289,7 +271,6 @@ let alivePush = (options: AlivePushOption)=> {
 					else {
 						let config = await this.getConfig();
 						if (config.path) {
-							console.log('JSBundleFile', RNAlivePush.JSBundleFile);
 							if (config.path === RNAlivePush.JSBundleFile) {
 								if (!config.install) {
 									this.feedback({type: alivePushFeedbackType.installSuccess});
@@ -302,7 +283,6 @@ let alivePush = (options: AlivePushOption)=> {
 						}
 
 					}
-					console.log('app start from ' + RNAlivePush.JSBundleFile);
 				}
 				catch (ex) {
 					if (this.errorCallback) {
