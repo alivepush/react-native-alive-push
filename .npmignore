@@ -1,2 +1,4 @@
 node_modules
 .badge.json
+postinstall
+postuninstall
