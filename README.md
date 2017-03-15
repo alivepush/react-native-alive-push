@@ -38,7 +38,7 @@ protected String getJSBundleFile() {
 在AppDelegate.m中添加 
 
 ```objective-c
-#import <RNAlivePush/RNAlivePush.h>
+#import "RNAlivePush.h"
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions{
     ...
