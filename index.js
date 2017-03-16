@@ -356,7 +356,7 @@ export class DeviceInfo {
 		this.BuildNumber = RNDeviceInfo.getBuildNumber();
 		this.Version = RNDeviceInfo.getVersion();
 		this.ReadableVersion = RNDeviceInfo.getReadableVersion();
-		this.DeviceName = RNDeviceInfo.getDeviceName();
+		this.DeviceName = encodeURI(RNDeviceInfo.getDeviceName());
 		this.UserAgent = RNDeviceInfo.getUserAgent();
 		this.DeviceLocale = RNDeviceInfo.getDeviceLocale();
 		this.DeviceCountry = RNDeviceInfo.getDeviceCountry();
