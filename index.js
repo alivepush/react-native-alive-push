@@ -1,4 +1,3 @@
-
 import {NativeModules, Platform, Dimensions, PixelRatio} from 'react-native'
 import React, {Component} from 'react'
 import RNFetchBlob from 'react-native-fetch-blob'
@@ -30,12 +29,8 @@ function objectToBase64Sync(obj: Object): String {
 }
 
 
-
-
 /**
  * @module alivePush
- *
- * @eventlistener alivePushStatusChange
  *
  * @example <caption>class wrapper</caption>
  * import alivePush from 'react-native-alive-push'
@@ -83,6 +78,7 @@ let alivePush = (options: AlivePushOption)=> {
 			restart() {
 				RNAlivePush.restart()
 			}
+
 			constructor(props) {
 				super(props);
 				this.options = options;
@@ -92,6 +88,7 @@ let alivePush = (options: AlivePushOption)=> {
 				};
 				this.errorCallback = null;
 			}
+
 			componentDidMount() {
 				let rootComponentInstance = this.refs.rootComponent;
 
@@ -133,20 +130,19 @@ let alivePush = (options: AlivePushOption)=> {
 				});
 			}
 
-			async getAppInfo(): APPInfo {
-
+			async getAppInfo(value: APPInfo = {}): APPInfo {
 				return this.getConfig().then(config=> {
-					return {
+					return Object.assign({
 						Binary: RNAlivePush.VersionName,
 						Inner: config.version || 0,
 						DeploymentKey: this.options.deploymentKey
-					};
+					}, value);
 				});
 			}
 
-			async buildHeaders(): Object {
+			async buildHeaders(appInfo: ?APPInfo): Object {
 				let device = await this.getDeviceInfo();
-				let app = await this.getAppInfo();
+				let app = await this.getAppInfo(appInfo);
 				let headers = {
 					device: device.toBase64Sync(),
 					'Content-Type': 'application/json',
@@ -181,8 +177,8 @@ let alivePush = (options: AlivePushOption)=> {
 					.progress(this.downloadProgressCallback);
 			}
 
-			async feedback(data?: FeedFormData = {type: alivePushFeedbackType.downloadSuccess}): ResponseJSON {
-				let headers = await this.buildHeaders();
+			async feedback(data?: FeedFormData = {type: alivePushFeedbackType.downloadSuccess}, appInfo: APPInfo): ResponseJSON {
+				let headers = await this.buildHeaders(appInfo);
 				RNFetchBlob.fetch("POST", this.buildUrlSync('main/feedback'), headers, JSON.stringify(data));
 			}
 
@@ -250,30 +246,32 @@ let alivePush = (options: AlivePushOption)=> {
 				try {
 					this.statusChangeCallback(AlivePushStatus.beforeCheck);
 					let packageInfo = await this.checkUpdate();
-					this.statusChangeCallback(AlivePushStatus.afterCheck,packageInfo);
+					this.statusChangeCallback(AlivePushStatus.afterCheck, packageInfo);
 					if (packageInfo.success && packageInfo.data) {
-						await this.updateConfig({
-							version: packageInfo.data.inner
-						});
 						this.statusChangeCallback(AlivePushStatus.beforeDownload);
 						let newPackage = await this.downloadPackage(packageInfo.data.url);
-						this.feedback();
+						this.feedback(alivePushFeedbackType.downloadSuccess, {
+							Inner: packageInfo.data.inner
+						});
 						let packagePath = newPackage.path();
 						let unzipPath = await this.unzipPackage(packagePath, packageInfo.data.inner);
 						let bundlePath = `${unzipPath}/app/index.${Platform.OS}.js`;
 						await this.updateConfig({
 							path: bundlePath,
 							lastUpdateTime: new Date(),
-							install: false
+							install: false,
+							version: packageInfo.data.inner
 						});
-						this.statusChangeCallback(AlivePushStatus.afterDownload,RNAlivePush.restart);
+						this.statusChangeCallback(AlivePushStatus.afterDownload, RNAlivePush.restart);
 					}
 					else {
 						let config = await this.getConfig();
 						if (config.path) {
 							if (config.path === RNAlivePush.JSBundleFile) {
 								if (!config.install) {
-									this.feedback({type: alivePushFeedbackType.installSuccess});
+									this.feedback({type: alivePushFeedbackType.installSuccess}, {
+										Inner: config.version
+									});
 									this.updateConfig({
 										install: true
 									});
@@ -324,7 +322,7 @@ export const AlivePushStatus = {
 	beforeDownload: 30,
 	downloading: 40,
 	afterDownload: 50,
-	install:60,
+	install: 60,
 };
 
 
@@ -369,6 +367,7 @@ export class DeviceInfo {
 		this.Ratio = PixelRatio.get()
 
 	}
+
 	toBase64Sync() {
 		return objectToBase64Sync(this);
 	}
@@ -398,7 +397,3 @@ type ResponseJSON={
 	code:Number
 }
 
-/**
- * @author m860
- * @version 0.0.1
- * */
