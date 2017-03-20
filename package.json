@@ -8,8 +8,7 @@
     "postinstall": "./postinstall",
     "postuninstall": "./postuninstall",
     "build:readme": "node_modules/documentation/bin/documentation.js readme --section 'API'",
-    "build:development-library": "node_modules/babel-cli/bin/babel.js alive-push.js -o ./index.js --presets react-native,es2015 --plugins transform-flow-strip-types",
-    "build:release-library": "node_modules/babel-cli/bin/babel.js alive-push.js -o ./index.js "
+    "build:library": "node_modules/babel-cli/bin/babel.js alive-push.js | node_modules/uglify-js/bin/uglifyjs -o ./index.js"
   },
   "keywords": [
     "react-native"
@@ -31,6 +30,7 @@
     "babel-plugin-transform-remove-console": "^6.8.1",
     "babel-preset-es2015": "^6.24.0",
     "babel-preset-react-native": "^1.9.1",
-    "documentation": "^4.0.0-beta.18"
+    "documentation": "^4.0.0-beta.18",
+    "uglify-js": "^2.8.14"
   }
 }
