@@ -1,0 +1,10 @@
+{
+  "presets":[
+    "react-native",
+    "es2015"
+  ],
+  "plugins": [
+    "transform-flow-strip-types",
+    "transform-remove-console"
+  ]
+}

@@ -2,3 +2,4 @@ node_modules
 .badge.json
 .idea
 dist
+alive-push.js
