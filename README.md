@@ -121,10 +121,3 @@ Type: {deploymentKey: [String](https://developer.mozilla.org/en-US/docs/Web/Java
 
 -   `deploymentKey` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 部署的key
 -   `host` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?** 服务器的地址
-
-## 
-
-**Meta**
-
--   **version**: 0.0.1
--   **author**: m860

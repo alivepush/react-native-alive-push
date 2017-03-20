@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "./postinstall",
     "postuninstall": "./postuninstall",
-    "build:readme": "node_modules/documentation/bin/documentation.js readme --section 'API'",
+    "build:readme": "node_modules/documentation/bin/documentation.js readme alive-push.js --section 'API'",
     "build:library": "node_modules/babel-cli/bin/babel.js alive-push.js | node_modules/uglify-js/bin/uglifyjs -o ./index.js"
   },
   "keywords": [
