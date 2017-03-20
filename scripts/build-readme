@@ -1,0 +1,2 @@
+node_modules/documentation/bin/documentation.js readme alive-push.js --section 'API'
+node_modules/markdown-styles/bin/generate-md --layout github --input ./README.md --output ./dist
