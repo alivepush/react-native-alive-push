@@ -1,21 +1,19 @@
 import {NativeModules, Platform, Dimensions, PixelRatio} from 'react-native'
-import React, {Component} from 'react'
+import React, {Component, PureComponent} from 'react'
 import RNFetchBlob from 'react-native-fetch-blob'
 import RNDeviceInfo from 'react-native-device-info'
 import {unzip} from 'react-native-zip-archive'
 
-const host = "http://172.16.30.157:8080/";
+const host = "http://172.16.30.236:8080/";
 
-const {RNAlivePush}=NativeModules;
+const {RNAlivePush} = NativeModules;
 
 const alivePushFeedbackType = {
 	downloadSuccess: 1,
 	installSuccess: 2
 };
 
-const dim = Dimensions.get("window");
-
-let _deviceInfo = null;
+// let _deviceInfo = null;
 
 function objectToBase64Sync(obj: Object): String {
 	let data = [];
@@ -65,7 +63,7 @@ function objectToBase64Sync(obj: Object): String {
  * @return {AlivePushComponent}
  *
  * */
-let alivePush = (options: AlivePushOption)=> {
+let alivePush = (options: AlivePushOption) => {
 
 	if (!options) {
 		throw new Error('options is required');
@@ -73,8 +71,12 @@ let alivePush = (options: AlivePushOption)=> {
 	if (!options.deploymentKey) {
 		throw new Error('options.deploymentKey is required');
 	}
-	let decorator = (RootComponent) => {
+	const decorator = (RootComponent) => {
 		return class AlivePushComponent extends Component {
+			/**
+			 * @private
+			 * 重启app
+			 * */
 			restart() {
 				RNAlivePush.restart()
 			}
@@ -82,36 +84,37 @@ let alivePush = (options: AlivePushOption)=> {
 			constructor(props) {
 				super(props);
 				this.options = options;
-				this.statusChangeCallback = ()=> {
-				};
-				this.downloadProgressCallback = ()=> {
-				};
+				this.statusChangeCallback = () => null;
+				this.downloadProgressCallback = () => null;
 				this.errorCallback = null;
+				this.rootComponent = null;
+				this.deviceInfo = new DeviceInfo();
 			}
 
 			componentDidMount() {
-				let rootComponentInstance = this.refs.rootComponent;
+				if (this.rootComponent) {
+					if (this.rootComponent.alivePushStatusChange) {
+						this.statusChangeCallback = this.rootComponent.alivePushStatusChange;
+						if (this.rootComponent instanceof Component || this.rootComponent instanceof PureComponent) {
+							this.statusChangeCallback = this.statusChangeCallback.bind(this.rootComponent);
+						}
+					}
 
-				if (rootComponentInstance && rootComponentInstance.alivePushStatusChange) {
-					this.statusChangeCallback = rootComponentInstance.alivePushStatusChange;
-					if (rootComponentInstance instanceof Component) {
-						this.statusChangeCallback = this.statusChangeCallback.bind(rootComponentInstance);
+					if (this.rootComponent.alivePushDownloadProgress) {
+						this.downloadProgressCallback = this.rootComponent.alivePushDownloadProgress;
+						if (this.rootComponent instanceof Component || this.rootComponent instanceof PureComponent) {
+							this.downloadProgressCallback = this.downloadProgressCallback.bind(this.rootComponent);
+						}
+					}
+
+					if (this.rootComponent.alivePushError) {
+						this.errorCallback = this.rootComponent.alivePushError;
+						if (this.rootComponent instanceof Component || this.rootComponent instanceof PureComponent) {
+							this.errorCallback = this.errorCallback.bind(this.rootComponent);
+						}
 					}
 				}
 
-				if (rootComponentInstance && rootComponentInstance.alivePushDownloadProgress) {
-					this.downloadProgressCallback = rootComponentInstance.alivePushDownloadProgress;
-					if (rootComponentInstance instanceof Component) {
-						this.downloadProgressCallback = this.downloadProgressCallback.bind(rootComponentInstance);
-					}
-				}
-
-				if (rootComponentInstance && rootComponentInstance.alivePushError) {
-					this.errorCallback = rootComponentInstance.alivePushError;
-					if (rootComponentInstance instanceof Component) {
-						this.errorCallback = this.errorCallback.bind(rootComponentInstance);
-					}
-				}
 
 				this.sync();
 			}
@@ -121,17 +124,17 @@ let alivePush = (options: AlivePushOption)=> {
 			}
 
 
-			getDeviceInfo(): DeviceInfo {
-				return new Promise((resolve, reject)=> {
-					if (!_deviceInfo) {
-						_deviceInfo = new DeviceInfo();
-					}
-					resolve(_deviceInfo);
-				});
-			}
+			// getDeviceInfo(): DeviceInfo {
+			// 	return new Promise((resolve, reject) => {
+			// 		if (!_deviceInfo) {
+			// 			_deviceInfo = new DeviceInfo();
+			// 		}
+			// 		resolve(_deviceInfo);
+			// 	});
+			// }
 
 			async getAppInfo(value: APPInfo = {}): APPInfo {
-				return this.getConfig().then(config=> {
+				return this.getConfig().then(config => {
 					return Object.assign({
 						Binary: RNAlivePush.VersionName,
 						Inner: config.version || 0,
@@ -141,10 +144,9 @@ let alivePush = (options: AlivePushOption)=> {
 			}
 
 			async buildHeaders(appInfo: ?APPInfo): Object {
-				let device = await this.getDeviceInfo();
 				let app = await this.getAppInfo(appInfo);
 				let headers = {
-					device: device.toBase64Sync(),
+					device: this.deviceInfo.toBase64Sync(),
 					'Content-Type': 'application/json',
 					app: objectToBase64Sync(app)
 				};
@@ -177,20 +179,20 @@ let alivePush = (options: AlivePushOption)=> {
 					.progress(this.downloadProgressCallback);
 			}
 
-			async feedback(data?: FeedFormData = {type: alivePushFeedbackType.downloadSuccess}, appInfo: APPInfo): ResponseJSON {
+			async feedback(data: ?FeedFormData = {type: alivePushFeedbackType.downloadSuccess}, appInfo: APPInfo): ResponseJSON {
 				let headers = await this.buildHeaders(appInfo);
 				RNFetchBlob.fetch("POST", this.buildUrlSync('main/feedback'), headers, JSON.stringify(data));
 			}
 
 			getConfig(): AlivePushConfig {
 				return RNFetchBlob.fs.readStream(RNAlivePush.AlivePushConfigPath, 'utf8')
-					.then(readStream=> {
-						return new Promise((resolve, reject)=> {
+					.then(readStream => {
+						return new Promise((resolve, reject) => {
 							let data = [];
-							readStream.onData(chunk=> {
+							readStream.onData(chunk => {
 								data.push(chunk);
 							});
-							readStream.onEnd(()=> {
+							readStream.onEnd(() => {
 								let jsonStr = data.join('');
 								jsonStr = jsonStr.substring(jsonStr.indexOf("{"), jsonStr.lastIndexOf("}") + 1)
 								let json;
@@ -202,7 +204,7 @@ let alivePush = (options: AlivePushOption)=> {
 								}
 								resolve(json);
 							});
-							readStream.onError(err=> {
+							readStream.onError(err => {
 								//reject(err);
 								resolve({});
 							});
@@ -233,10 +235,10 @@ let alivePush = (options: AlivePushOption)=> {
 			async unzipPackage(path: String, filename: String): String {
 				let targetPath = `${RNAlivePush.CachePath}/${filename}`;
 				return unzip(path, targetPath)
-					.then(unzipPath=> {
+					.then(unzipPath => {
 						// delete package cache
 						return RNFetchBlob.fs.unlink(path)
-							.then(()=> {
+							.then(() => {
 								return unzipPath;
 							});
 					})
@@ -244,27 +246,37 @@ let alivePush = (options: AlivePushOption)=> {
 
 			async sync(): void {
 				try {
+					//状态更新为:检查前
 					this.statusChangeCallback(AlivePushStatus.beforeCheck);
+					//开始检查是否有更新
 					let packageInfo = await this.checkUpdate();
+					//状态更新为:检查后
 					this.statusChangeCallback(AlivePushStatus.afterCheck, packageInfo);
 					if (packageInfo.success && packageInfo.data) {
+						//如果有更新包就开始下载
+						//状态更新为:下载前
 						this.statusChangeCallback(AlivePushStatus.beforeDownload);
 						let newPackage = await this.downloadPackage(packageInfo.data.url);
+						//下载成功后,通知服务端已下载
 						this.feedback(alivePushFeedbackType.downloadSuccess, {
 							Inner: packageInfo.data.inner
 						});
 						let packagePath = newPackage.path();
+						//解压安装包
 						let unzipPath = await this.unzipPackage(packagePath, packageInfo.data.inner);
 						let bundlePath = `${unzipPath}/app/index.${Platform.OS}.js`;
+						//更新alive push的配置文件
 						await this.updateConfig({
 							path: bundlePath,
 							lastUpdateTime: new Date(),
 							install: false,
 							version: packageInfo.data.inner
 						});
+						//状态更新为:下载后
 						this.statusChangeCallback(AlivePushStatus.afterDownload, RNAlivePush.restart);
 					}
 					else {
+						//如果没有更新包就按照之前的配置启动app
 						let config = await this.getConfig();
 						if (config.path) {
 							if (config.path === RNAlivePush.JSBundleFile) {
@@ -279,7 +291,6 @@ let alivePush = (options: AlivePushOption)=> {
 								}
 							}
 						}
-
 					}
 				}
 				catch (ex) {
@@ -293,7 +304,7 @@ let alivePush = (options: AlivePushOption)=> {
 			}
 
 			render() {
-				return <RootComponent {...this.props} ref={"rootComponent"}/>
+				return <RootComponent {...this.props} ref={ref => this.rootComponent = ref}/>
 			}
 		}
 	}
@@ -307,13 +318,13 @@ let alivePush = (options: AlivePushOption)=> {
 /**@typedef
  * @constant
  * @enum {Number}
- * @property {Number} beforeCheck
- * @property {Number} checking
- * @property {Number} afterCheck
- * @property {Number} beforeDownload
- * @property {Number} downloading
- * @property {Number} afterDownload
- * @property {Number} install
+ * @property {Number} beforeCheck - 检查更新前
+ * @property {Number} checking - 检查中
+ * @property {Number} afterCheck - 检查更新后
+ * @property {Number} beforeDownload - 下载前
+ * @property {Number} downloading - 下载中
+ * @property {Number} afterDownload - 下载后
+ * @property {Number} install - 安装成功
  * */
 export const AlivePushStatus = {
 	beforeCheck: 1,
@@ -328,21 +339,22 @@ export const AlivePushStatus = {
 
 export default alivePush;
 
-type FeedFormData={
-	type:alivePushFeedbackType
+type FeedFormData = {
+	type: alivePushFeedbackType
 }
 
 /**@typedef
  * @property {String} deploymentKey - 部署的key
  * @property {String} [host] - 服务器的地址
  * */
-type AlivePushOption={
-	deploymentKey:String,
-	host:?String,
+type AlivePushOption = {
+	deploymentKey: String,
+	host: ?String,
 }
 
 export class DeviceInfo {
 	constructor() {
+		const {width, height} = Dimensions.get("window");
 		this.UniqueID = RNDeviceInfo.getUniqueID();
 		this.Manufacturer = RNDeviceInfo.getManufacturer();
 		this.Brand = RNDeviceInfo.getBrand();
@@ -362,8 +374,8 @@ export class DeviceInfo {
 		this.InstanceID = RNDeviceInfo.getInstanceID();
 		this.Emulator = RNDeviceInfo.isEmulator();
 		this.Tablet = RNDeviceInfo.isTablet();
-		this.Width = dim.width;
-		this.Height = dim.height;
+		this.Width = width;
+		this.Height = height;
 		this.Ratio = PixelRatio.get()
 
 	}
@@ -373,27 +385,27 @@ export class DeviceInfo {
 	}
 }
 
-type APPInfo={
-	Binary:String,
-	Inner:Number,
-	DeploymentKey:String
+type APPInfo = {
+	Binary: String,
+	Inner: Number,
+	DeploymentKey: String
 }
 
-type AlivePushConfig={
+type AlivePushConfig = {
 	// bundle path
-	path:String,
+	path: String,
 	// bundle version
-	version:String,
+	version: String,
 	// last time update config file
-	lastUpdateTime:Number,
+	lastUpdateTime: Number,
 	//
-	install:Boolean
+	install: Boolean
 }
 
-type ResponseJSON={
-	success:Boolean,
-	data:Object,
-	msg:String,
-	code:Number
+type ResponseJSON = {
+	success: Boolean,
+	data: Object,
+	msg: String,
+	code: Number
 }
 
