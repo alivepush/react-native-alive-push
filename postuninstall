@@ -1,6 +1,0 @@
-echo 'post uninstall and unlink library'
-cd ../../
-react-native unlink react-native-device-info
-react-native unlink react-native-fetch-blob
-react-native unlink react-native-zip-archive
-react-native unlink react-native-alive-push
