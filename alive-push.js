@@ -29,36 +29,6 @@ function objectToBase64Sync(obj: Object): String {
 
 /**
  * @module alivePush
- *
- * @example <caption>class wrapper</caption>
- * import alivePush from 'react-native-alive-push'
- * class MyApp extends React.Component{
- * 	...
- * }
- * const AppWrapper=alivePush({...})(MyApp)
- *
- * @example <caption>Decorator</caption>
- * \@alivePush({
- * 	...
- * })
- * class MyApp extends React.Component{
- * 	...
- * }
- *
- * @example <caption>事件回调,目前仅支持以下列出的事件回调</caption>
- * \@alivePush
- * class MyApp extends React.Component{
- *     alivePushStatusChange(status:AlivePushStatus){
- *         // do something
- *     }
- *     alivePushDownloadProgress(progress){
- *         // do something
- *     }
- *     alivePushError(err){
- *         // do something
- *     }
- * }
- *
  * @return {Function}
  * @return {AlivePushComponent}
  *

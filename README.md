@@ -57,46 +57,6 @@ protected String getJSBundleFile() {
 
 -   `options` **[AlivePushOption](#alivepushoption)** 
 
-**Examples**
-
-_class wrapper_
-
-```javascript
-import alivePush from 'react-native-alive-push'
-class MyApp extends React.Component{
-	...
-}
-const AppWrapper=alivePush({...})(MyApp)
-```
-
-_Decorator_
-
-```javascript
-\@alivePush({
-	...
-})
-class MyApp extends React.Component{
-	...
-}
-```
-
-_事件回调,目前仅支持以下列出的事件回调_
-
-```javascript
-\@alivePush
-class MyApp extends React.Component{
-    alivePushStatusChange(status:AlivePushStatus){
-        // do something
-    }
-    alivePushDownloadProgress(progress){
-        // do something
-    }
-    alivePushError(err){
-        // do something
-    }
-}
-```
-
 Returns **[Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** 
 
 Returns **AlivePushComponent** 
@@ -105,13 +65,13 @@ Returns **AlivePushComponent**
 
 **Properties**
 
--   `beforeCheck` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `checking` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `afterCheck` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `beforeDownload` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `downloading` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `afterDownload` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
--   `install` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 
+-   `beforeCheck` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 检查更新前
+-   `checking` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 检查中
+-   `afterCheck` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 检查更新后
+-   `beforeDownload` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 下载前
+-   `downloading` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 下载中
+-   `afterDownload` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 下载后
+-   `install` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** 安装成功
 
 ## AlivePushOption
 
