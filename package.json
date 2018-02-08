@@ -5,8 +5,6 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "./postinstall",
-    "postuninstall": "./postuninstall",
     "build:readme": "scripts/build-readme.sh",
     "build:library": "scripts/build-library.sh",
     "build": "npm run build:readme && npm run build:library"
