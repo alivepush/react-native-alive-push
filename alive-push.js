@@ -225,7 +225,7 @@ let alivePush = (options: AlivePushOption) => {
 					if (packageInfo.success && packageInfo.data) {
 						//如果有更新包就开始下载
 						//状态更新为:下载前
-						this.statusChangeCallback(AlivePushStatus.beforeDownload);
+						this.statusChangeCallback(AlivePushStatus.beforeDownload,packageInfo);
 						let newPackage = await this.downloadPackage(packageInfo.data.url);
 						//下载成功后,通知服务端已下载
 						this.feedback(alivePushFeedbackType.downloadSuccess, {
@@ -243,7 +243,7 @@ let alivePush = (options: AlivePushOption) => {
 							version: packageInfo.data.inner
 						});
 						//状态更新为:下载后
-						this.statusChangeCallback(AlivePushStatus.afterDownload, RNAlivePush.restart);
+						this.statusChangeCallback(AlivePushStatus.afterDownload, packageInfo);
 					}
 					else {
 						//如果没有更新包就按照之前的配置启动app
@@ -257,7 +257,7 @@ let alivePush = (options: AlivePushOption) => {
 									this.updateConfig({
 										install: true
 									});
-									this.statusChangeCallback(AlivePushStatus.install);
+									this.statusChangeCallback(AlivePushStatus.install,packageInfo);
 								}
 							}
 						}
