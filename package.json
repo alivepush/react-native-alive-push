@@ -14,6 +14,11 @@
   ],
   "author": "",
   "license": "",
+  "dependencies": {
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-plugin-transform-remove-console": "^6.8.1",
+    "babel-preset-es2015": "^6.24.0"
+  },
   "peerDependencies": {
     "react": "15.4.2",
     "react-native": "0.42.0",
@@ -23,9 +28,6 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",
-    "babel-plugin-transform-flow-strip-types": "^6.22.0",
-    "babel-plugin-transform-remove-console": "^6.8.1",
-    "babel-preset-es2015": "^6.24.0",
     "babel-preset-react-native": "^1.9.1",
     "cheerio": "^0.22.0",
     "documentation": "^4.0.0-beta.18",
