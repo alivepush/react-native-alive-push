@@ -229,7 +229,7 @@ let alivePush = (options: AlivePushOption) => {
 						this.statusChangeCallback(AlivePushStatus.beforeDownload, packageInfo);
 						let newPackage = await this.downloadPackage(packageInfo.data.url);
 						//下载成功后,通知服务端已下载
-						this.feedback(alivePushFeedbackType.downloadSuccess, {
+						this.feedback({type: alivePushFeedbackType.downloadSuccess}, {
 							Inner: packageInfo.data.inner
 						});
 						let packagePath = newPackage.path();
