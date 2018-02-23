@@ -41,7 +41,8 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         try {
             PackageInfo packageInfo = packageManager.getPackageInfo(application.getPackageName(), 0);
             String applicationPath = packageInfo.applicationInfo.dataDir;
-            File configFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
+            String versionName = packageInfo.versionName;
+            File configFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME + "." + versionName);
             if (configFile.exists()) {
                 BufferedReader reader = new BufferedReader(new FileReader(configFile));
                 StringBuilder stringBuilder = new StringBuilder();
@@ -115,6 +116,19 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
 
     private
     @Nullable
+    String getVersionName() {
+        PackageManager packageManager = this.reactContext.getPackageManager();
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(this.reactContext.getPackageName(), 0);
+            return packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private
+    @Nullable
     String getApplicationPath() {
         PackageManager packageManager = this.reactContext.getPackageManager();
         try {
@@ -131,7 +145,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
     JSONObject getAlivePushConfig() {
         String cachePath = this.getApplicationPath();
         if (cachePath != null) {
-            File config = new File(cachePath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
+            File config = new File(cachePath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME+"."+this.getVersionName());
             if (config.exists()) {
                 try {
                     BufferedReader reader = new BufferedReader(new FileReader(config));
@@ -176,7 +190,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         String bundlePath = "";
 
         if (applicationPath != null) {
-            File alivePushConfigFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
+            File alivePushConfigFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME+"."+this.getVersionName());
             if (!alivePushConfigFile.exists()) {
                 try {
                     alivePushConfigFile.createNewFile();
