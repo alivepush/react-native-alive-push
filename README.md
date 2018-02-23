@@ -21,7 +21,7 @@ alive-push安装好之后默认会进行link,如果link失败请手动link
 
 ## Usage
 
-### 重写 ReactNativeHost 的 getJSBundleFile 方法
+### 重写`ReactNativeHost`的`getJSBundleFile`和`getBundleAssetName`
 
 #### Android
 
@@ -30,6 +30,16 @@ alive-push安装好之后默认会进行link,如果link失败请手动link
 @Override
 protected String getJSBundleFile() {
     return RNAlivePushModule.getJSBundleFile(MainApplication.this);
+}
+
+@Nullable
+@Override
+protected String getBundleAssetName() {
+    String bundleAssetName = RNAlivePushModule.getBundleAssetName(MainApplication.this);
+    if (bundleAssetName != null) {
+        return bundleAssetName;
+    }
+    return super.getBundleAssetName();
 }
 ```
 
