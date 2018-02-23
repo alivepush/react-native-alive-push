@@ -34,6 +34,80 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext reactContext;
 
+    public static
+    @Nullable
+    JSONObject getAlivePushConfig(Application application) {
+        PackageManager packageManager = application.getPackageManager();
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(application.getPackageName(), 0);
+            String applicationPath = packageInfo.applicationInfo.dataDir;
+            File configFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
+            if (configFile.exists()) {
+                BufferedReader reader = new BufferedReader(new FileReader(configFile));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                reader.close();
+                if (BuildConfig.DEBUG) {
+                    Log.i(RNAlivePushModule.LOG_TYPE_NAME, "Alive Push Config = \n" + stringBuilder.toString());
+                }
+                JSONObject config = new JSONObject(stringBuilder.toString());
+                return config;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 获取bundle的路径
+     */
+    public static
+    @Nullable
+    String getJSBundleFile(Application application) {
+        JSONObject config = getAlivePushConfig(application);
+        if (config != null) {
+            try {
+                String bundlePath = config.getString("path");
+                File bundleFile = new File(bundlePath);
+                if (bundleFile.exists()) {
+                    return bundlePath;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取asset的路径
+     */
+    public static
+    @Nullable
+    String getBundleAssetName(Application application) {
+        JSONObject config = getAlivePushConfig(application);
+        if (config != null) {
+            try {
+                String bundleAssetName = config.getString("assetPath");
+                return bundleAssetName;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+
     public RNAlivePushModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
@@ -85,45 +159,6 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         }
         return null;
     }
-
-    public static
-    @Nullable
-    String getJSBundleFile(Application application) {
-        PackageManager packageManager = application.getPackageManager();
-        try {
-            PackageInfo packageInfo = packageManager.getPackageInfo(application.getPackageName(), 0);
-            String applicationPath = packageInfo.applicationInfo.dataDir;
-            File configFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
-            if (configFile.exists()) {
-                BufferedReader reader = new BufferedReader(new FileReader(configFile));
-                StringBuilder stringBuilder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-                reader.close();
-                if (BuildConfig.DEBUG) {
-                    Log.i(RNAlivePushModule.LOG_TYPE_NAME, "Alive Push Config = \n" + stringBuilder.toString());
-                }
-                JSONObject config = new JSONObject(stringBuilder.toString());
-                String bundlePath = config.getString("path");
-                File bundleFile = new File(bundlePath);
-                if (bundleFile.exists()) {
-                    return bundlePath;
-                }
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 
     @Override
     public String getName() {

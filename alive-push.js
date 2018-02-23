@@ -115,6 +115,7 @@ let alivePush = (options: AlivePushOption) => {
 
 			async buildHeaders(appInfo: ?APPInfo): Object {
 				let app = await this.getAppInfo(appInfo);
+				console.log(`app info`, appInfo);
 				let headers = {
 					device: this.deviceInfo.toBase64Sync(),
 					'Content-Type': 'application/json',
@@ -124,11 +125,11 @@ let alivePush = (options: AlivePushOption) => {
 			}
 
 			async checkUpdate(): ResponseJSON {
-				let headers = await this.buildHeaders();
+				const headers = await this.buildHeaders();
+				console.log(`检查更新`, headers);
 				this.statusChangeCallback(AlivePushStatus.checking);
-				let res = await RNFetchBlob.fetch("GET", this.buildUrlSync("main/checkupdate"), headers);
-				let json = res.json();
-				return json;
+				const res = await RNFetchBlob.fetch("GET", this.buildUrlSync("main/checkupdate"), headers);
+				return res.json();
 			}
 
 			async downloadPackage(url: String): String {
@@ -225,7 +226,7 @@ let alivePush = (options: AlivePushOption) => {
 					if (packageInfo.success && packageInfo.data) {
 						//如果有更新包就开始下载
 						//状态更新为:下载前
-						this.statusChangeCallback(AlivePushStatus.beforeDownload,packageInfo);
+						this.statusChangeCallback(AlivePushStatus.beforeDownload, packageInfo);
 						let newPackage = await this.downloadPackage(packageInfo.data.url);
 						//下载成功后,通知服务端已下载
 						this.feedback(alivePushFeedbackType.downloadSuccess, {
@@ -233,11 +234,13 @@ let alivePush = (options: AlivePushOption) => {
 						});
 						let packagePath = newPackage.path();
 						//解压安装包
-						let unzipPath = await this.unzipPackage(packagePath, packageInfo.data.inner);
-						let bundlePath = `${unzipPath}/app/index.${Platform.OS}.js`;
+						const unzipPath = await this.unzipPackage(packagePath, packageInfo.data.inner);
+						const bundlePath = `${unzipPath}/app/index.${Platform.OS}.js`;
+						const assetPath = `${unzipPath}/app`;
 						//更新alive push的配置文件
 						await this.updateConfig({
 							path: bundlePath,
+							assetPath: assetPath,
 							lastUpdateTime: new Date(),
 							install: false,
 							version: packageInfo.data.inner
@@ -257,7 +260,7 @@ let alivePush = (options: AlivePushOption) => {
 									this.updateConfig({
 										install: true
 									});
-									this.statusChangeCallback(AlivePushStatus.install,packageInfo);
+									this.statusChangeCallback(AlivePushStatus.install, packageInfo);
 								}
 							}
 						}
