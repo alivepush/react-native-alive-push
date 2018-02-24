@@ -105,7 +105,10 @@ RCT_EXPORT_METHOD(restart)
 }
 
 + (NSString*)getAlivePushConfigPath{
-    NSString *config = [[self documentPath] stringByAppendingPathComponent:kAlivePushConfigPath];
+    
+    NSString *fullConfigPath = [NSString stringWithFormat:@"%@.%@",kAlivePushConfigPath,[RNAlivePush getVersionName]];
+    NSString *config = [[self documentPath] stringByAppendingPathComponent:fullConfigPath];
+    
     return config;
 }
 
