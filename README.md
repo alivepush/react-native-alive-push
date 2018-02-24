@@ -61,7 +61,6 @@ protected String getBundleAssetName() {
 
 ### 0.0.3
 
--   android/ios alivepush配置文件移除了versionName后缀
 -   更新包的目录结构调整.`APPLICATION_DATA_DIR/INNER_VERSION`调整为`APPLICATION_DATA_DIR/VERSION_NAME/INNER_VERSION`
 
 ### 0.0.2
