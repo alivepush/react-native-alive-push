@@ -41,8 +41,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         try {
             PackageInfo packageInfo = packageManager.getPackageInfo(application.getPackageName(), 0);
             String applicationPath = packageInfo.applicationInfo.dataDir;
-            String versionName = packageInfo.versionName;
-            File configFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME + "." + versionName);
+            File configFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
             if (configFile.exists()) {
                 BufferedReader reader = new BufferedReader(new FileReader(configFile));
                 StringBuilder stringBuilder = new StringBuilder();
@@ -145,7 +144,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
     JSONObject getAlivePushConfig() {
         String cachePath = this.getApplicationPath();
         if (cachePath != null) {
-            File config = new File(cachePath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME+"."+this.getVersionName());
+            File config = new File(cachePath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
             if (config.exists()) {
                 try {
                     BufferedReader reader = new BufferedReader(new FileReader(config));
@@ -190,7 +189,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         String bundlePath = "";
 
         if (applicationPath != null) {
-            File alivePushConfigFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME+"."+this.getVersionName());
+            File alivePushConfigFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME);
             if (!alivePushConfigFile.exists()) {
                 try {
                     alivePushConfigFile.createNewFile();
