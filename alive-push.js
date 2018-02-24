@@ -235,8 +235,8 @@ let alivePush = (options: AlivePushOption) => {
 						let packagePath = newPackage.path();
 						//解压安装包
 						const unzipPath = await this.unzipPackage(packagePath, `${RNAlivePush.VersionName}/${packageInfo.data.inner}`);
-						const bundlePath = `${unzipPath}/index.${Platform.OS}.js`;
-						const assetPath = `${unzipPath}`;
+						const bundlePath = `${unzipPath}/app/index.${Platform.OS}.js`;
+						const assetPath = `${unzipPath}/app`;
 						//更新alive push的配置文件
 						await this.updateConfig({
 							path: bundlePath,
