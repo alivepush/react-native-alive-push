@@ -60,11 +60,12 @@ protected String getBundleAssetName() {
 ## Change
 
 ### 0.0.2
-- android/ios alivepush配置文件添加了versionName后缀
-- android支持asset-dest bundle
-- 修改了下载完成后feedback失败的bug
-- 修改了覆盖安装时访问老版本的bug
-- 优化了alive-push代码
+
+-   android/ios alivepush配置文件添加了versionName后缀
+-   android支持asset-dest bundle
+-   修改了下载完成后feedback失败的bug
+-   修改了覆盖安装时访问老版本的bug
+-   优化了alive-push代码
 
 # API
 
