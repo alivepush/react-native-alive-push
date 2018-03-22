@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.reactlibrary.test" >
+    package="com.alivepush.test" >
 
     <uses-sdk
         android:minSdkVersion="16"
@@ -10,8 +10,8 @@
         android:name="android.test.InstrumentationTestRunner"
         android:functionalTest="false"
         android:handleProfiling="false"
-        android:label="Tests for com.reactlibrary.test"
-        android:targetPackage="com.reactlibrary.test" />
+        android:label="Tests for com.alivepush.test"
+        android:targetPackage="com.alivepush.test" />
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
