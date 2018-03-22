@@ -59,6 +59,10 @@ protected String getBundleAssetName() {
 
 ## Change
 
+### 0.0.4
+
+-   更新了android的package name并修改了android的部分bug
+
 ### 0.0.3
 
 -   更新包的目录结构调整.`APPLICATION_DATA_DIR/INNER_VERSION`调整为`APPLICATION_DATA_DIR/VERSION_NAME/INNER_VERSION`
