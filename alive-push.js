@@ -128,7 +128,7 @@ let alivePush = (options: AlivePushOption) => {
 				const headers = await this.buildHeaders();
 				console.log(`检查更新`, headers);
 				this.statusChangeCallback(AlivePushStatus.checking);
-				const res = await RNFetchBlob.fetch("GET", this.buildUrlSync("main/checkupdate"), headers);
+				const res = await RNFetchBlob.fetch("GET", this.buildUrlSync(`main/checkupdate?_=${Math.random()}`), headers);
 				return res.json();
 			}
 

@@ -4,3 +4,4 @@ node_modules
 dist
 alive-push.js
 scripts
+.todo

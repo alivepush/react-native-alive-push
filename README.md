@@ -59,6 +59,10 @@ protected String getBundleAssetName() {
 
 ## Change
 
+### 0.0.5
+
+-   checkupdate的时候不使用缓存(url添加随机数)
+
 ### 0.0.4
 
 -   更新了android的package name并修改了android的部分bug
