@@ -41,6 +41,11 @@ let alivePush = (options: AlivePushOption) => {
 	if (!options.deploymentKey) {
 		throw new Error('options.deploymentKey is required');
 	}
+	const log = (...args) => {
+		if (options.debug) {
+			console.log(...args);
+		}
+	}
 	const decorator = (RootComponent) => {
 		return class AlivePushComponent extends Component {
 			/**
@@ -59,6 +64,7 @@ let alivePush = (options: AlivePushOption) => {
 				this.errorCallback = null;
 				this.rootComponent = null;
 				this.deviceInfo = new DeviceInfo();
+				log("device info", this.deviceInfo);
 			}
 
 			componentDidMount() {
@@ -115,7 +121,6 @@ let alivePush = (options: AlivePushOption) => {
 
 			async buildHeaders(appInfo: ?APPInfo): Object {
 				let app = await this.getAppInfo(appInfo);
-				console.log(`app info`, appInfo);
 				let headers = {
 					device: this.deviceInfo.toBase64Sync(),
 					'Content-Type': 'application/json',
@@ -126,7 +131,6 @@ let alivePush = (options: AlivePushOption) => {
 
 			async checkUpdate(): ResponseJSON {
 				const headers = await this.buildHeaders();
-				console.log(`检查更新`, headers);
 				this.statusChangeCallback(AlivePushStatus.checking);
 				const res = await RNFetchBlob.fetch("GET", this.buildUrlSync(`main/checkupdate?_=${Math.random()}`), headers);
 				return res.json();
@@ -200,6 +204,7 @@ let alivePush = (options: AlivePushOption) => {
 			async updateConfig(newConfig: AlivePushConfig): Promise {
 				let oldConfig = await this.getConfig();
 				let config = Object.assign({}, oldConfig, newConfig);
+				log('更新后的alivePushConfiguration', config);
 				return this.writeConfig(config);
 			}
 
@@ -220,24 +225,34 @@ let alivePush = (options: AlivePushOption) => {
 					//状态更新为:检查前
 					this.statusChangeCallback(AlivePushStatus.beforeCheck);
 					//开始检查是否有更新
+					log(`开始check版本信息...`)
 					let packageInfo = await this.checkUpdate();
+					log(`check结果`, packageInfo);
 					//状态更新为:检查后
 					this.statusChangeCallback(AlivePushStatus.afterCheck, packageInfo);
 					if (packageInfo.success && packageInfo.data) {
 						//如果有更新包就开始下载
 						//状态更新为:下载前
 						this.statusChangeCallback(AlivePushStatus.beforeDownload, packageInfo);
+						log('开始下载安装包...')
 						let newPackage = await this.downloadPackage(packageInfo.data.url);
+						log('下载完成')
 						//下载成功后,通知服务端已下载
+						log(`通知服务端下载成功`)
 						this.feedback({type: alivePushFeedbackType.downloadSuccess}, {
 							Inner: packageInfo.data.inner
 						});
 						let packagePath = newPackage.path();
 						//解压安装包
+						log('开始解压安装包...')
 						const unzipPath = await this.unzipPackage(packagePath, `${RNAlivePush.VersionName}/${packageInfo.data.inner}`);
+						log('安装包解压完成')
 						const bundlePath = `${unzipPath}/app/index.${Platform.OS}.js`;
+						log(`新的bundle的路径 : ${bundlePath}`);
 						const assetPath = `${unzipPath}/app`;
+						log(`新的资源路劲 : ${assetPath}`);
 						//更新alive push的配置文件
+						log('开始更新alivePushConfig配置...')
 						await this.updateConfig({
 							path: bundlePath,
 							assetPath: assetPath,
@@ -245,28 +260,40 @@ let alivePush = (options: AlivePushOption) => {
 							install: false,
 							version: packageInfo.data.inner
 						});
+						log('alivePushConfig配置更新完成')
 						//状态更新为:下载后
 						this.statusChangeCallback(AlivePushStatus.afterDownload, packageInfo);
 					}
 					else {
 						//如果没有更新包就按照之前的配置启动app
 						let config = await this.getConfig();
+						log('alivePushConfig配置', config);
 						if (config.path) {
 							if (config.path === RNAlivePush.JSBundleFile) {
 								if (!config.install) {
+									log('开始安装...');
+									log(`通知服务端客户端已经安装成功`)
 									this.feedback({type: alivePushFeedbackType.installSuccess}, {
 										Inner: config.version
 									});
+									log(`更新alivePushConfig.install=true,即安装成功`);
 									this.updateConfig({
 										install: true
 									});
 									this.statusChangeCallback(AlivePushStatus.install, packageInfo);
 								}
+								else {
+									log('当前版本已经安装成功');
+								}
+							}
+							else {
+								log(`alivePushConfig中的启动路径和RNAlivePush.JSBundleFile不一样,${config.path}!==${RNAlivePush.JSBundleFile}`);
 							}
 						}
 					}
 				}
 				catch (ex) {
+					log('发生错误', ex);
 					if (this.errorCallback) {
 						this.errorCallback(ex);
 					}
@@ -323,6 +350,7 @@ type FeedFormData = {
 type AlivePushOption = {
 	deploymentKey: String,
 	host: ?String,
+	debug: ?Boolean
 }
 
 export class DeviceInfo {

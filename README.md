@@ -59,17 +59,12 @@ protected String getBundleAssetName() {
 
 ## Change
 
-### 0.0.5
-
--   checkupdate的时候不使用缓存(url添加随机数)
-
-### 0.0.4
-
--   更新了android的package name并修改了android的部分bug
-
-### 0.0.3
+### 0.0.3 ~0.0.6
 
 -   更新包的目录结构调整.`APPLICATION_DATA_DIR/INNER_VERSION`调整为`APPLICATION_DATA_DIR/VERSION_NAME/INNER_VERSION`
+-   更新了android的package name并修改了android的部分bug
+-   checkupdate的时候不使用缓存(url添加随机数)
+-   添加了debug模式
 
 ### 0.0.2
 
@@ -107,9 +102,10 @@ Returns **AlivePushComponent**
 
 ## AlivePushOption
 
-Type: {deploymentKey: [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String), host: [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?}
+Type: {deploymentKey: [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String), host: [String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?, debug: [Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?}
 
 **Properties**
 
 -   `deploymentKey` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 部署的key
 -   `host` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)?** 服务器的地址
+-   `debug` **[Boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?** 
