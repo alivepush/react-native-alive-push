@@ -22,61 +22,61 @@ RCT_EXPORT_MODULE()
                            @"AlivePushConfigPath":[RNAlivePush getAlivePushConfigPath],
                            @"VersionName":[RNAlivePush getVersionName],
                            @"VersionCode":[RNAlivePush getVersinCode],
-                           @"JSBundleFilePath": [RNAlivePush getJSBundleFilePath]};
+                           @"JSBundleFile": [RNAlivePush getJSBundleFilePath]};
     return dic;
 }
 
 
 RCT_EXPORT_METHOD(restart)
 {
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
         UIWindow *window = [[UIApplication sharedApplication] valueForKeyPath:@"delegate.window"];
         if(!window){
             window =[[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
         }
-        
-        
+
+
         NSURL* jsCodeLocation = [RNAlivePush  getJSBundleFile];
         RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                             moduleName:[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleExecutable"]
                                                      initialProperties:nil
                                                          launchOptions:nil];
         rootView.backgroundColor = [[UIColor alloc] initWithRed:1.0f green:1.0f blue:1.0f alpha:1];
-        
+
         UIViewController *rootViewController = [UIViewController new];
         rootViewController.view = rootView;
         window.rootViewController = rootViewController;
         [window makeKeyAndVisible];
     });
-    
+
 }
 
 + (NSURL*)getJSBundleFile{
-    
+
     NSURL *jsCodeLocation;
-    
+
 #ifdef DEBUG
     jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
-    
+
 #else
-    
+
     if([[NSFileManager defaultManager] fileExistsAtPath:[RNAlivePush getAlivePushConfigPath]]){
-        
+
         NSString *config = [NSString stringWithContentsOfURL:[NSURL fileURLWithPath:[RNAlivePush getAlivePushConfigPath]] encoding:NSUTF8StringEncoding error:nil];
-        
-        
+
+
         NSData *data = [config dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data
                                                             options:NSJSONWritingPrettyPrinted
                                                               error:nil];
-        
+
         NSMutableString *filePath = [NSMutableString stringWithString:[dic objectForKey:@"path"] ];
-        
+
         NSString *mainbundleJsPath =  [[RNAlivePush documentPath] stringByAppendingPathComponent:[[filePath componentsSeparatedByString:@"Documents"] lastObject]];
-        
+
         BOOL isDirectory;
-        
+
         if([[NSFileManager defaultManager] fileExistsAtPath:mainbundleJsPath isDirectory:&isDirectory]){
             jsCodeLocation = [NSURL fileURLWithPath:mainbundleJsPath];
         }
@@ -87,10 +87,10 @@ RCT_EXPORT_METHOD(restart)
     else{
         jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
     }
-    
+
 #endif
-    
-    
+
+
     return jsCodeLocation;
 }
 
@@ -98,17 +98,17 @@ RCT_EXPORT_METHOD(restart)
 #pragma mark custom methods ###
 
 + (NSString*)documentPath{
-    
+
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *docDir = [paths objectAtIndex:0];
     return docDir;
 }
 
 + (NSString*)getAlivePushConfigPath{
-    
+
     NSString *fullConfigPath = [NSString stringWithFormat:@"%@.%@",kAlivePushConfigPath,[RNAlivePush getVersionName]];
     NSString *config = [[self documentPath] stringByAppendingPathComponent:fullConfigPath];
-    
+
     return config;
 }
 
