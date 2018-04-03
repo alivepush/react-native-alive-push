@@ -113,7 +113,23 @@ RCT_EXPORT_METHOD(restart)
 }
 
 + (NSString*)getJSBundleFilePath{
-    return [[self documentPath] stringByAppendingPathComponent:kJSBundleFilePath];
+    NSString *configPath = [RNAlivePush getAlivePushConfigPath];
+    if(configPath != NULL){
+        NSURL *filePath = [NSURL fileURLWithPath:configPath];
+        NSString *dicStr = [NSString stringWithContentsOfURL:filePath encoding:NSUTF8StringEncoding error:nil];
+
+        NSData *jsonData = [dicStr dataUsingEncoding:NSUTF8StringEncoding];
+        NSError *err;
+        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                            options:NSJSONReadingMutableContainers
+                                                              error:&err];
+
+        if(dic != NULL){
+            NSString *path = [dic objectForKey:@"path"];
+            return path;
+        }
+    }
+    return  @"";//[[self documentPath] stringByAppendingPathComponent:kJSBundleFilePath];
 }
 
 + (NSString*)getVersionName{
