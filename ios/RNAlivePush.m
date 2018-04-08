@@ -22,7 +22,7 @@ RCT_EXPORT_MODULE()
                            @"AlivePushConfigPath":[RNAlivePush getAlivePushConfigPath],
                            @"VersionName":[RNAlivePush getVersionName],
                            @"VersionCode":[RNAlivePush getVersinCode],
-                           @"JSBundleFile": [RNAlivePush getJSBundleFilePath]};
+                           @"JSBundleFilePath": [RNAlivePush getJSBundleFilePath]};
     return dic;
 }
 
@@ -112,26 +112,41 @@ RCT_EXPORT_METHOD(restart)
     return config;
 }
 
+//
+//+ (NSString*)getJSBundleFilePath{
+//
+//    NSString *str =[[self documentPath] stringByAppendingPathComponent:kJSBundleFilePath];
+//    NSLog(@"path = %@",str);
+//    return str;
+//}
+
+
+
 + (NSString*)getJSBundleFilePath{
     NSString *configPath = [RNAlivePush getAlivePushConfigPath];
-    if(configPath != NULL){
-        NSURL *filePath = [NSURL fileURLWithPath:configPath];
-        NSString *dicStr = [NSString stringWithContentsOfURL:filePath encoding:NSUTF8StringEncoding error:nil];
-        
-        NSData *jsonData = [dicStr dataUsingEncoding:NSUTF8StringEncoding];
-        if(jsonData!=NULL){
+    if([[NSFileManager defaultManager] fileExistsAtPath:configPath]){
+
+        if(configPath != NULL){
+            NSURL *filePath = [NSURL fileURLWithPath:configPath];
+            NSString *dicStr = [NSString stringWithContentsOfURL:filePath encoding:NSUTF8StringEncoding error:nil];
+
+            NSData *jsonData = [dicStr dataUsingEncoding:NSUTF8StringEncoding];
             NSError *err;
             NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                 options:NSJSONReadingMutableContainers
                                                                   error:&err];
-            
+
             if(dic != NULL){
                 NSString *path = [dic objectForKey:@"path"];
+
+                NSLog(@"path = %@",path);
+
                 return path;
             }
         }
-        
     }
+
+
     return  @"";//[[self documentPath] stringByAppendingPathComponent:kJSBundleFilePath];
 }
 
