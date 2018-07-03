@@ -8,8 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.telecom.Call;
 import android.util.Log;
 
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -22,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,10 +39,10 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
 
     public static
     @Nullable
-    JSONObject getAlivePushConfig(Application application) {
-        PackageManager packageManager = application.getPackageManager();
+    JSONObject getAlivePushConfig(Context context) {
+        PackageManager packageManager = context.getPackageManager();
         try {
-            PackageInfo packageInfo = packageManager.getPackageInfo(application.getPackageName(), 0);
+            PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
             String applicationPath = packageInfo.applicationInfo.dataDir;
             String versionName = packageInfo.versionName;
             File configFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME + "." + versionName);
@@ -71,8 +74,8 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
      */
     public static
     @Nullable
-    String getJSBundleFile(Application application) {
-        JSONObject config = getAlivePushConfig(application);
+    String getJSBundleFile(Context context) {
+        JSONObject config = getAlivePushConfig(context);
         if (config != null) {
             try {
                 String bundlePath = config.getString("path");
@@ -92,8 +95,8 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
      */
     public static
     @Nullable
-    String getBundleAssetName(Application application) {
-        JSONObject config = getAlivePushConfig(application);
+    String getBundleAssetName(Context context) {
+        JSONObject config = getAlivePushConfig(context);
         if (config != null) {
             try {
                 String bundleAssetName = config.getString("assetPath");
@@ -142,7 +145,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
     JSONObject getAlivePushConfig() {
         String cachePath = this.getApplicationPath();
         if (cachePath != null) {
-            File config = new File(cachePath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME+"."+this.getVersionName());
+            File config = new File(cachePath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME + "." + this.getVersionName());
             if (config.exists()) {
                 try {
                     BufferedReader reader = new BufferedReader(new FileReader(config));
@@ -181,7 +184,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         String bundlePath = "";
 
         if (applicationPath != null) {
-            File alivePushConfigFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME+"."+this.getVersionName());
+            File alivePushConfigFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME + "." + this.getVersionName());
             if (!alivePushConfigFile.exists()) {
                 try {
                     alivePushConfigFile.createNewFile();
@@ -237,5 +240,31 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         AlarmManager mgr = (AlarmManager) applicationContext.getSystemService(Context.ALARM_SERVICE);
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
         System.exit(0);
+    }
+
+    @ReactMethod
+    public void reloadBundle(Callback callback) {
+        Context context = this.reactContext.getApplicationContext();
+        try {
+            BundleManager.reloadBundle(context, getJSBundleFile(context));
+            if (callback != null) {
+                callback.invoke(null);
+            }
+        } catch (IllegalAccessException ex) {
+            ex.printStackTrace();
+            if (callback != null) {
+                callback.invoke(ex.getMessage());
+            }
+        } catch (NoSuchMethodException ex) {
+            ex.printStackTrace();
+            if (callback != null) {
+                callback.invoke(ex.getMessage());
+            }
+        } catch (InvocationTargetException ex) {
+            ex.printStackTrace();
+            if (callback != null) {
+                callback.invoke(ex.getMessage());
+            }
+        }
     }
 }
