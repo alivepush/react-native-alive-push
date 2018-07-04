@@ -5,3 +5,4 @@ dist
 *.log
 android/build
 android/.gradle
+android/android.iml

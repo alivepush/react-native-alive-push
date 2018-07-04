@@ -31,7 +31,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
     /**
      * bundle重新加载完成
      */
-    private final String EVENT_ALIVEPUSH_BUNDLE_LOADED = "EVENT_ALIVEPUSH_BUNDLE_LOADED";
+    private final String EVENT_BUNDLE_LOAD_ERROR = "EVENT_BUNDLE_LOAD_ERROR";
 
     private final ReactApplicationContext reactContext;
 
@@ -226,7 +226,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         constants.put("AlivePushConfigPath", alivePushConfigPath);
         constants.put("VersionName", versionName);
         constants.put("VersionCode", versionCode);
-        constants.put("EVENT_ALIVEPUSH_BUNDLE_LOADED", EVENT_ALIVEPUSH_BUNDLE_LOADED);
+        constants.put("EVENT_BUNDLE_LOAD_ERROR", EVENT_BUNDLE_LOAD_ERROR);
         return constants;
     }
 
@@ -244,24 +244,23 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
                     String bundlePath = getJSBundleFile(context);
                     if (bundlePath != null) {
                         BundleManager.reloadBundle(context, getJSBundleFile(context));
-                        emit(ALIVE_PUSH_CONFIG_NAME, null);
                     } else {
-                        emit(ALIVE_PUSH_CONFIG_NAME, "bundle path is null");
+                        emit(EVENT_BUNDLE_LOAD_ERROR, "bundle path is null");
                     }
                 } catch (IllegalAccessException ex) {
                     ex.printStackTrace();
-                    emit(ALIVE_PUSH_CONFIG_NAME, ex.getStackTrace());
+                    emit(EVENT_BUNDLE_LOAD_ERROR, ex.getMessage());
                 } catch (NoSuchMethodException ex) {
                     ex.printStackTrace();
-                    emit(ALIVE_PUSH_CONFIG_NAME, ex.getStackTrace());
+                    emit(EVENT_BUNDLE_LOAD_ERROR, ex.getMessage());
                 } catch (InvocationTargetException ex) {
                     ex.printStackTrace();
                     Throwable t = ex.getTargetException();// 获取目标异常
                     t.printStackTrace();
-                    emit(ALIVE_PUSH_CONFIG_NAME, t.getStackTrace());
+                    emit(EVENT_BUNDLE_LOAD_ERROR, t.getMessage());
                 } catch (NoSuchFieldException e) {
                     e.printStackTrace();
-                    emit(ALIVE_PUSH_CONFIG_NAME, e.getStackTrace());
+                    emit(EVENT_BUNDLE_LOAD_ERROR, e.getMessage());
                 }
             }
         });
