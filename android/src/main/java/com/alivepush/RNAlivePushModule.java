@@ -1,18 +1,14 @@
 
 package com.alivepush;
 
-import android.app.AlarmManager;
-import android.app.Application;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +18,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,15 +28,19 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
 
     private static String ALIVE_PUSH_CONFIG_NAME = "config.data";
     private static String LOG_TYPE_NAME = "AlivePush";
+    /**
+     * bundle重新加载完成
+     */
+    private final String EVENT_ALIVEPUSH_BUNDLE_LOADED = "EVENT_ALIVEPUSH_BUNDLE_LOADED";
 
     private final ReactApplicationContext reactContext;
 
     public static
     @Nullable
-    JSONObject getAlivePushConfig(Application application) {
-        PackageManager packageManager = application.getPackageManager();
+    JSONObject getAlivePushConfig(Context context) {
+        PackageManager packageManager = context.getPackageManager();
         try {
-            PackageInfo packageInfo = packageManager.getPackageInfo(application.getPackageName(), 0);
+            PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
             String applicationPath = packageInfo.applicationInfo.dataDir;
             String versionName = packageInfo.versionName;
             File configFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME + "." + versionName);
@@ -71,8 +72,8 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
      */
     public static
     @Nullable
-    String getJSBundleFile(Application application) {
-        JSONObject config = getAlivePushConfig(application);
+    String getJSBundleFile(Context context) {
+        JSONObject config = getAlivePushConfig(context);
         if (config != null) {
             try {
                 String bundlePath = config.getString("path");
@@ -92,8 +93,8 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
      */
     public static
     @Nullable
-    String getBundleAssetName(Application application) {
-        JSONObject config = getAlivePushConfig(application);
+    String getBundleAssetName(Context context) {
+        JSONObject config = getAlivePushConfig(context);
         if (config != null) {
             try {
                 String bundleAssetName = config.getString("assetPath");
@@ -109,6 +110,13 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
     public RNAlivePushModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
+    }
+
+    public void emit(String event, Object data) {
+        DeviceEventManagerModule.RCTDeviceEventEmitter emitter = this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+        if (emitter != null) {
+            emitter.emit(event, data);
+        }
     }
 
     private
@@ -142,7 +150,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
     JSONObject getAlivePushConfig() {
         String cachePath = this.getApplicationPath();
         if (cachePath != null) {
-            File config = new File(cachePath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME+"."+this.getVersionName());
+            File config = new File(cachePath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME + "." + this.getVersionName());
             if (config.exists()) {
                 try {
                     BufferedReader reader = new BufferedReader(new FileReader(config));
@@ -181,7 +189,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         String bundlePath = "";
 
         if (applicationPath != null) {
-            File alivePushConfigFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME+"."+this.getVersionName());
+            File alivePushConfigFile = new File(applicationPath, RNAlivePushModule.ALIVE_PUSH_CONFIG_NAME + "." + this.getVersionName());
             if (!alivePushConfigFile.exists()) {
                 try {
                     alivePushConfigFile.createNewFile();
@@ -218,24 +226,45 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         constants.put("AlivePushConfigPath", alivePushConfigPath);
         constants.put("VersionName", versionName);
         constants.put("VersionCode", versionCode);
+        constants.put("EVENT_ALIVEPUSH_BUNDLE_LOADED", EVENT_ALIVEPUSH_BUNDLE_LOADED);
         return constants;
     }
 
+
+    /**
+     * 重新加载bundle
+     */
     @ReactMethod
-    public void restart() {
-        Context applicationContext = this.reactContext.getApplicationContext();
+    public void reloadBundle() {
+        final Context context = this.reactContext.getApplicationContext();
+        this.reactContext.getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String bundlePath = getJSBundleFile(context);
+                    if (bundlePath != null) {
+                        BundleManager.reloadBundle(context, getJSBundleFile(context));
+                        emit(ALIVE_PUSH_CONFIG_NAME, null);
+                    } else {
+                        emit(ALIVE_PUSH_CONFIG_NAME, "bundle path is null");
+                    }
+                } catch (IllegalAccessException ex) {
+                    ex.printStackTrace();
+                    emit(ALIVE_PUSH_CONFIG_NAME, ex.getStackTrace());
+                } catch (NoSuchMethodException ex) {
+                    ex.printStackTrace();
+                    emit(ALIVE_PUSH_CONFIG_NAME, ex.getStackTrace());
+                } catch (InvocationTargetException ex) {
+                    ex.printStackTrace();
+                    Throwable t = ex.getTargetException();// 获取目标异常
+                    t.printStackTrace();
+                    emit(ALIVE_PUSH_CONFIG_NAME, t.getStackTrace());
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                    emit(ALIVE_PUSH_CONFIG_NAME, e.getStackTrace());
+                }
+            }
+        });
 
-        Intent startIntent = applicationContext.getPackageManager()
-                .getLaunchIntentForPackage(applicationContext.getPackageName());
-
-        int mPendingIntentId = 123456;
-
-        PendingIntent mPendingIntent =
-                PendingIntent.getActivity(applicationContext,
-                        mPendingIntentId,
-                        startIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager mgr = (AlarmManager) applicationContext.getSystemService(Context.ALARM_SERVICE);
-        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
-        System.exit(0);
     }
 }
