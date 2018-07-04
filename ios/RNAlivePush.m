@@ -25,9 +25,7 @@ RCT_EXPORT_MODULE()
                            @"JSBundleFile": [RNAlivePush getJSBundleFilePath]};
     return dic;
 }
-
-
-RCT_EXPORT_METHOD(restart)
+RCT_EXPORT_METHOD(reloadBundle)
 {
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -51,6 +49,7 @@ RCT_EXPORT_METHOD(restart)
     });
     
 }
+
 
 + (NSURL*)getJSBundleFile{
     
