@@ -6,3 +6,4 @@ dist
 android/build
 android/.gradle
 android/android.iml
+android/gradle
