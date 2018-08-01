@@ -86,3 +86,8 @@ protected String getJSBundleFile() {
 -   修改了下载完成后feedback失败的bug
 -   修改了覆盖安装时访问老版本的bug
 -   优化了alive-push代码
+
+## 交流群
+
+<img src="https://raw.githubusercontent.com/alivepush/react-native-alive-push/master/assets/qr1.jpg"/>
+<img src="https://raw.githubusercontent.com/alivepush/react-native-alive-push/master/assets/qr1.jpg" style="marginLeft:10px"/>
