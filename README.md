@@ -90,4 +90,4 @@ protected String getJSBundleFile() {
 ## 交流群
 
 <img src="https://raw.githubusercontent.com/alivepush/react-native-alive-push/master/assets/qr1.jpg" width="120"/>
-<img src="https://raw.githubusercontent.com/alivepush/react-native-alive-push/master/assets/qr1.jpg" width="120"/>
+<img src="https://raw.githubusercontent.com/alivepush/react-native-alive-push/master/assets/qr2.jpg" width="120"/>
