@@ -16,13 +16,29 @@
 }
 RCT_EXPORT_MODULE()
 
+
+- (NSArray<NSString *> *)supportedEvents
+{
+    return @[@"EVENT_BUNDLE_LOAD_ERROR"];
+}
+
+
+
+
+- (void)stopObserving
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (NSDictionary *)constantsToExport
 {
     NSDictionary *dic = @{ @"CachePath": [RNAlivePush documentPath],
                            @"AlivePushConfigPath":[RNAlivePush getAlivePushConfigPath],
                            @"VersionName":[RNAlivePush getVersionName],
                            @"VersionCode":[RNAlivePush getVersinCode],
-                           @"JSBundleFile": [RNAlivePush getJSBundleFilePath]};
+                           @"JSBundleFile": [RNAlivePush getJSBundleFilePath],
+                           @"EVENT_BUNDLE_LOAD_ERROR":@"EVENT_BUNDLE_LOAD_ERROR"
+                           };
     return dic;
 }
 RCT_EXPORT_METHOD(reloadBundle)
@@ -36,6 +52,10 @@ RCT_EXPORT_METHOD(reloadBundle)
         
         
         NSURL* jsCodeLocation = [RNAlivePush  getJSBundleFile];
+        if(jsCodeLocation == nil){
+            [self sendEventWithName:@"EVENT_BUNDLE_LOAD_ERROR" body:@{@"message": @"加载失败"}];
+            return ;
+        }
         RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                             moduleName:[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleExecutable"]
                                                      initialProperties:nil
@@ -113,25 +133,25 @@ RCT_EXPORT_METHOD(reloadBundle)
 
 + (NSString*)getJSBundleFilePath{
     NSString *configPath = [RNAlivePush getAlivePushConfigPath];
-
-   if([[NSFileManager defaultManager] fileExistsAtPath:configPath]){
-    if(configPath != NULL){
-        NSURL *filePath = [NSURL fileURLWithPath:configPath];
-        NSString *dicStr = [NSString stringWithContentsOfURL:filePath encoding:NSUTF8StringEncoding error:nil];
-        
-        NSData *jsonData = [dicStr dataUsingEncoding:NSUTF8StringEncoding];
-        if(jsonData!=NULL){
-            NSError *err;
-            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                                options:NSJSONReadingMutableContainers
-                                                                  error:&err];
+    
+    if([[NSFileManager defaultManager] fileExistsAtPath:configPath]){
+        if(configPath != NULL){
+            NSURL *filePath = [NSURL fileURLWithPath:configPath];
+            NSString *dicStr = [NSString stringWithContentsOfURL:filePath encoding:NSUTF8StringEncoding error:nil];
             
-            if(dic != NULL){
-                NSString *path = [dic objectForKey:@"path"];
-                return path;
+            NSData *jsonData = [dicStr dataUsingEncoding:NSUTF8StringEncoding];
+            if(jsonData!=NULL){
+                NSError *err;
+                NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                    options:NSJSONReadingMutableContainers
+                                                                      error:&err];
+                
+                if(dic != NULL){
+                    NSString *path = [dic objectForKey:@"path"];
+                    return path;
+                }
             }
-        }
-        
+            
         }
     }
     return  @"";//[[self documentPath] stringByAppendingPathComponent:kJSBundleFilePath];
