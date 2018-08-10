@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B3E7B58A1CC2AC0600A0062D /* RNAlivePush.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNAlivePush.m */; };
+		D755B4C4211D8D32005B926E /* DeviceUID.m in Sources */ = {isa = PBXBuildFile; fileRef = D755B4C0211D8D32005B926E /* DeviceUID.m */; };
+		D755B4C5211D8D32005B926E /* RNAlivePush.m in Sources */ = {isa = PBXBuildFile; fileRef = D755B4C2211D8D32005B926E /* RNAlivePush.m */; };
+		D755B4C6211D8D32005B926E /* DeviceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D755B4C3211D8D32005B926E /* DeviceInfo.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,8 +26,12 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libRNAlivePush.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNAlivePush.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		B3E7B5881CC2AC0600A0062D /* RNAlivePush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNAlivePush.h; sourceTree = "<group>"; };
-		B3E7B5891CC2AC0600A0062D /* RNAlivePush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNAlivePush.m; sourceTree = "<group>"; };
+		D755B4BE211D8D31005B926E /* DeviceUID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeviceUID.h; path = "../../test-alive-push/node_modules/react-native-alive-push/ios/DeviceUID.h"; sourceTree = "<group>"; };
+		D755B4BF211D8D31005B926E /* DeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeviceInfo.h; path = "../../test-alive-push/node_modules/react-native-alive-push/ios/DeviceInfo.h"; sourceTree = "<group>"; };
+		D755B4C0211D8D32005B926E /* DeviceUID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeviceUID.m; path = "../../test-alive-push/node_modules/react-native-alive-push/ios/DeviceUID.m"; sourceTree = "<group>"; };
+		D755B4C1211D8D32005B926E /* RNAlivePush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RNAlivePush.h; path = "../../test-alive-push/node_modules/react-native-alive-push/ios/RNAlivePush.h"; sourceTree = "<group>"; };
+		D755B4C2211D8D32005B926E /* RNAlivePush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNAlivePush.m; path = "../../test-alive-push/node_modules/react-native-alive-push/ios/RNAlivePush.m"; sourceTree = "<group>"; };
+		D755B4C3211D8D32005B926E /* DeviceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeviceInfo.m; path = "../../test-alive-push/node_modules/react-native-alive-push/ios/DeviceInfo.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,8 +56,12 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				B3E7B5881CC2AC0600A0062D /* RNAlivePush.h */,
-				B3E7B5891CC2AC0600A0062D /* RNAlivePush.m */,
+				D755B4BF211D8D31005B926E /* DeviceInfo.h */,
+				D755B4C3211D8D32005B926E /* DeviceInfo.m */,
+				D755B4BE211D8D31005B926E /* DeviceUID.h */,
+				D755B4C0211D8D32005B926E /* DeviceUID.m */,
+				D755B4C1211D8D32005B926E /* RNAlivePush.h */,
+				D755B4C2211D8D32005B926E /* RNAlivePush.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,7 +122,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B3E7B58A1CC2AC0600A0062D /* RNAlivePush.m in Sources */,
+				D755B4C6211D8D32005B926E /* DeviceInfo.m in Sources */,
+				D755B4C4211D8D32005B926E /* DeviceUID.m in Sources */,
+				D755B4C5211D8D32005B926E /* RNAlivePush.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -197,7 +209,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
-				"$(inherited)",
+					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",

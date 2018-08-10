@@ -1,7 +1,7 @@
 import {NativeModules, Platform, Dimensions, PixelRatio} from 'react-native'
 import React, {Component, PureComponent} from 'react'
 import RNFetchBlob from 'react-native-fetch-blob'
-import RNDeviceInfo from 'react-native-device-info'
+import APDeviceInfo from './apDeviceinfo'
 import {unzip} from 'react-native-zip-archive'
 
 //default host
@@ -353,25 +353,25 @@ type AlivePushOption = {
 export class DeviceInfo {
     constructor() {
         const {width, height} = Dimensions.get("window");
-        this.UniqueID = RNDeviceInfo.getUniqueID();
-        this.Manufacturer = RNDeviceInfo.getManufacturer();
-        this.Brand = RNDeviceInfo.getBrand();
-        this.Model = RNDeviceInfo.getModel();
-        this.DeviceId = RNDeviceInfo.getDeviceId();
-        this.SystemName = RNDeviceInfo.getSystemName();
-        this.SystemVersion = RNDeviceInfo.getSystemVersion();
-        this.BundleId = RNDeviceInfo.getBundleId();
-        this.BuildNumber = RNDeviceInfo.getBuildNumber();
-        this.Version = RNDeviceInfo.getVersion();
-        this.ReadableVersion = RNDeviceInfo.getReadableVersion();
-        this.DeviceName = encodeURI(RNDeviceInfo.getDeviceName());
-        this.UserAgent = RNDeviceInfo.getUserAgent();
-        this.DeviceLocale = RNDeviceInfo.getDeviceLocale();
-        this.DeviceCountry = RNDeviceInfo.getDeviceCountry();
-        this.Timezone = RNDeviceInfo.getTimezone();
-        this.InstanceID = RNDeviceInfo.getInstanceID();
-        this.Emulator = RNDeviceInfo.isEmulator();
-        this.Tablet = RNDeviceInfo.isTablet();
+        this.UniqueID = APDeviceInfo.getUniqueID();
+        this.Manufacturer = APDeviceInfo.getManufacturer();
+        this.Brand = APDeviceInfo.getBrand();
+        this.Model = APDeviceInfo.getModel();
+        this.DeviceId = APDeviceInfo.getDeviceId();
+        this.SystemName = APDeviceInfo.getSystemName();
+        this.SystemVersion = APDeviceInfo.getSystemVersion();
+        this.BundleId = APDeviceInfo.getBundleId();
+        this.BuildNumber = APDeviceInfo.getBuildNumber();
+        this.Version = APDeviceInfo.getVersion();
+        this.ReadableVersion = APDeviceInfo.getReadableVersion();
+        this.DeviceName = encodeURI(APDeviceInfo.getDeviceName());
+        this.UserAgent = APDeviceInfo.getUserAgent();
+        this.DeviceLocale = APDeviceInfo.getDeviceLocale();
+        this.DeviceCountry = APDeviceInfo.getDeviceCountry();
+        this.Timezone = APDeviceInfo.getTimezone();
+        this.InstanceID = APDeviceInfo.getInstanceID();
+        this.Emulator = APDeviceInfo.isEmulator();
+        this.Tablet = APDeviceInfo.isTablet();
         this.Width = width;
         this.Height = height;
         this.Ratio = PixelRatio.get()
