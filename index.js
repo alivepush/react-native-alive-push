@@ -1,14 +1,12 @@
 import {NativeModules, Platform, Dimensions, PixelRatio} from 'react-native'
 import React, {Component, PureComponent} from 'react'
 import RNFetchBlob from 'react-native-fetch-blob'
-import APDeviceInfo from './apDeviceinfo'
 import {unzip} from 'react-native-zip-archive'
 
 //default host
 const host = "https://alivepush.com/";
 
 const {RNAlivePush} = NativeModules;
-
 const alivePushFeedbackType = {
     /**
      * 下载成功
@@ -351,31 +349,31 @@ type AlivePushOption = {
 }
 
 export class DeviceInfo {
+
     constructor() {
         const {width, height} = Dimensions.get("window");
-        this.UniqueID = APDeviceInfo.getUniqueID();
-        this.Manufacturer = APDeviceInfo.getManufacturer();
-        this.Brand = APDeviceInfo.getBrand();
-        this.Model = APDeviceInfo.getModel();
-        this.DeviceId = APDeviceInfo.getDeviceId();
-        this.SystemName = APDeviceInfo.getSystemName();
-        this.SystemVersion = APDeviceInfo.getSystemVersion();
-        this.BundleId = APDeviceInfo.getBundleId();
-        this.BuildNumber = APDeviceInfo.getBuildNumber();
-        this.Version = APDeviceInfo.getVersion();
-        this.ReadableVersion = APDeviceInfo.getReadableVersion();
-        this.DeviceName = encodeURI(APDeviceInfo.getDeviceName());
-        this.UserAgent = APDeviceInfo.getUserAgent();
-        this.DeviceLocale = APDeviceInfo.getDeviceLocale();
-        this.DeviceCountry = APDeviceInfo.getDeviceCountry();
-        this.Timezone = APDeviceInfo.getTimezone();
-        this.InstanceID = APDeviceInfo.getInstanceID();
-        this.Emulator = APDeviceInfo.isEmulator();
-        this.Tablet = APDeviceInfo.isTablet();
+        this.UniqueID = RNAlivePush.uniqueId;
+        this.Manufacturer = RNAlivePush.systemManufacturer;
+        this.Brand = RNAlivePush.brand;
+        this.Model = RNAlivePush.model;
+        this.DeviceId = RNAlivePush.deviceId;
+        this.SystemName = RNAlivePush.systemName;
+        this.SystemVersion = RNAlivePush.systemVersion;
+        this.BundleId = RNAlivePush.bundleId;
+        this.BuildNumber = RNAlivePush.buildNumber;
+        this.Version = RNAlivePush.appVersion;
+        this.ReadableVersion = RNAlivePush.appVersion + "." + RNAlivePush.buildNumber;
+        this.DeviceName = encodeURI(RNAlivePush.deviceName);
+        this.UserAgent = RNAlivePush.userAgent;
+        this.DeviceLocale = RNAlivePush.deviceLocale;
+        this.DeviceCountry = RNAlivePush.deviceCountry;
+        this.Timezone = RNAlivePush.timezone;
+        this.InstanceID = RNAlivePush.instanceId;
+        this.Emulator = RNAlivePush.isEmulator;
+        this.Tablet = RNAlivePush.isTablet;
         this.Width = width;
         this.Height = height;
         this.Ratio = PixelRatio.get()
-
     }
 
     toBase64Sync() {
