@@ -55,10 +55,10 @@ let index = (options: AlivePushOption) => {
         return class AlivePushComponent extends Component {
             /**
              * @private
-             * 重启app
+             * 重新加载bundle文件
              * */
-            restart() {
-                RNAlivePush.restart()
+            reloadBundle() {
+                RNAlivePush.reloadBundle()
             }
 
             constructor(props) {
