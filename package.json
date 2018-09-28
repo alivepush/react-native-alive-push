@@ -1,39 +1,28 @@
 {
-  "_from": "react-native-alive-push",
-  "_id": "react-native-alive-push@0.0.10",
-  "_inBundle": false,
-  "_integrity": "sha512-piWkQz/Dpzb9HNDPeLzIEibFtnXKgtbc+LhHDsD7O1VJOtceS6eIfjdhJefWU0d6/WSQUQRIW3WxDdRsI90miA==",
-  "_location": "/react-native-alive-push",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "tag",
-    "registry": true,
-    "raw": "react-native-alive-push",
-    "name": "react-native-alive-push",
-    "escapedName": "react-native-alive-push",
-    "rawSpec": "",
-    "saveSpec": null,
-    "fetchSpec": "latest"
+  "name": "react-native-alive-push",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:readme": "scripts/build-readme.sh",
+    "build:library": "scripts/build-library.sh",
+    "build": "npm run build:library"
   },
-  "_requiredBy": [
-    "#USER",
-    "/"
+  "keywords": [
+    "react-native"
   ],
-  "_resolved": "https://registry.npmjs.org/react-native-alive-push/-/react-native-alive-push-0.0.10.tgz",
-  "_shasum": "44e11a835b5db5f4999e82d71605fc68d3a71e97",
-  "_spec": "react-native-alive-push",
-  "_where": "/Users/fannie.y.he/test-alive-push",
-  "author": {
-    "name": "m860"
-  },
-  "bundleDependencies": false,
+  "author": "m860",
+  "license": "MIT",
   "dependencies": {
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-plugin-transform-remove-console": "^6.8.1",
     "babel-preset-es2015": "^6.24.0"
   },
-  "deprecated": false,
-  "description": "react native 热更新,目前这个版本是基于`react-native@0.44.0`开发的,支持热加载.",
+  "peerDependencies": {
+    "react-native-fetch-blob": "^0.10.2",
+    "react-native-zip-archive": "^1.0.0"
+  },
   "devDependencies": {
     "babel-cli": "^6.24.0",
     "babel-preset-react-native": "^1.9.1",
@@ -41,22 +30,5 @@
     "documentation": "^4.0.0-beta.18",
     "markdown-styles": "^3.1.9",
     "uglify-js": "^2.8.14"
-  },
-  "keywords": [
-    "react-native"
-  ],
-  "license": "MIT",
-  "main": "index.js",
-  "name": "react-native-alive-push",
-  "peerDependencies": {
-    "react-native-fetch-blob": "^0.10.2",
-    "react-native-zip-archive": "^1.0.0"
-  },
-  "scripts": {
-    "build": "npm run build:library",
-    "build:library": "scripts/build-library.sh",
-    "build:readme": "scripts/build-readme.sh",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "version": "0.1.0"
+  }
 }
