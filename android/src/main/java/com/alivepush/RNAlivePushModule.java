@@ -237,8 +237,6 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         constants.put("EVENT_BUNDLE_LOAD_ERROR", EVENT_BUNDLE_LOAD_ERROR);
 
 
-
-
         //deviceInfo 相关
         String packageName = this.reactContext.getPackageName();
         constants.put("appVersion", "not available");
@@ -258,7 +256,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         try {
             BluetoothAdapter myDevice = BluetoothAdapter.getDefaultAdapter();
             deviceName = myDevice.getName();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -295,7 +293,7 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
                 try {
                     String bundlePath = getJSBundleFile(context);
                     if (bundlePath != null) {
-                        BundleManager.reloadBundle(context, getJSBundleFile(context));
+                        BundleManager.reloadBundle(context, bundlePath);
                     } else {
                         emit(EVENT_BUNDLE_LOAD_ERROR, "bundle path is null");
                     }
@@ -311,6 +309,9 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
                     t.printStackTrace();
                     emit(EVENT_BUNDLE_LOAD_ERROR, t.getMessage());
                 } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                    emit(EVENT_BUNDLE_LOAD_ERROR, e.getMessage());
+                } catch (Exception e) {
                     e.printStackTrace();
                     emit(EVENT_BUNDLE_LOAD_ERROR, e.getMessage());
                 }
@@ -358,7 +359,6 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         int layout = getReactApplicationContext().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
         return layout == Configuration.SCREENLAYOUT_SIZE_LARGE || layout == Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
-
 
 
 }

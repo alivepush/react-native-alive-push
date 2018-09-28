@@ -53,7 +53,7 @@ public class BundleManager {
             JSBundleLoader bundleLoader = JSBundleLoader.createFileLoader(bundlePath);
             recreateReactContextInBackgroundMethod.invoke(reactInstanceManager, javaScriptExecutorFactory, bundleLoader);
         } else {
-            throw new NullPointerException("reactInstanceManager is null");
+            throw new NullPointerException("reactInstanceManager is null,Please init BundleManager via method BundleManager.init");
         }
     }
 }
