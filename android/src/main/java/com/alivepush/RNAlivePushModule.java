@@ -36,6 +36,11 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
 
     private static String ALIVE_PUSH_CONFIG_NAME = "config.data";
     private static String LOG_TYPE_NAME = "AlivePush";
+    /**
+     * bundle重新加载完成
+     */
+    private final String EVENT_BUNDLE_LOAD_ERROR = "EVENT_BUNDLE_LOAD_ERROR";
+
     private final ReactApplicationContext reactContext;
 
     public static
@@ -230,6 +235,8 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
         constants.put("AlivePushConfigPath", alivePushConfigPath);
         constants.put("VersionName", versionName);
         constants.put("VersionCode", versionCode);
+        constants.put("EVENT_BUNDLE_LOAD_ERROR", EVENT_BUNDLE_LOAD_ERROR);
+
 
         //deviceInfo 相关
         String packageName = this.reactContext.getPackageName();
@@ -279,27 +286,39 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
      * 重新加载bundle
      */
     @ReactMethod
-    public void reloadBundle(Promise promise) {
+    public void reloadBundle() {
         final Context context = this.reactContext.getApplicationContext();
-        try {
-            String bundlePath = getJSBundleFile(context);
-            if (bundlePath != null) {
-                BundleManager.reloadBundle(context, bundlePath);
-                promise.resolve(null);
-            } else {
-                promise.reject(new Exception("bundle path is null"));
+        this.reactContext.getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String bundlePath = getJSBundleFile(context);
+                    if (bundlePath != null) {
+                        BundleManager.reloadBundle(context, bundlePath);
+                    } else {
+                        emit(EVENT_BUNDLE_LOAD_ERROR, "bundle path is null");
+                    }
+                } catch (IllegalAccessException ex) {
+                    ex.printStackTrace();
+                    emit(EVENT_BUNDLE_LOAD_ERROR, ex.getMessage());
+                } catch (NoSuchMethodException ex) {
+                    ex.printStackTrace();
+                    emit(EVENT_BUNDLE_LOAD_ERROR, ex.getMessage());
+                } catch (InvocationTargetException ex) {
+                    ex.printStackTrace();
+                    Throwable t = ex.getTargetException();// 获取目标异常
+                    t.printStackTrace();
+                    emit(EVENT_BUNDLE_LOAD_ERROR, t.getMessage());
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                    emit(EVENT_BUNDLE_LOAD_ERROR, e.getMessage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    emit(EVENT_BUNDLE_LOAD_ERROR, e.getMessage());
+                }
             }
-        } catch (IllegalAccessException ex) {
-            promise.reject(ex);
-        } catch (NoSuchMethodException ex) {
-            promise.reject(ex);
-        } catch (InvocationTargetException ex) {
-            promise.reject(ex);
-        } catch (NoSuchFieldException ex) {
-            promise.reject(ex);
-        } catch (Exception ex) {
-            promise.reject(ex);
-        }
+        });
+
     }
 
     /**
