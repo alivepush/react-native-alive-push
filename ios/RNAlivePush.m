@@ -98,8 +98,7 @@ RCT_EXPORT_METHOD(reloadBundle)
     NSURL *jsCodeLocation;
     
 #ifdef DEBUG
-    jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
-    
+    jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
 #else
     
     if([[NSFileManager defaultManager] fileExistsAtPath:[RNAlivePush getAlivePushConfigPath]]){
@@ -122,12 +121,12 @@ RCT_EXPORT_METHOD(reloadBundle)
             jsCodeLocation = [NSURL fileURLWithPath:mainbundleJsPath];
         }
         else{
-            jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
+            jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
         }
     }
     else{
-        jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
-    }
+        jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+   }
     
 #endif
     
