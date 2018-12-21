@@ -1,7 +1,5 @@
 # react-native-alive-push
 
-react native 热更新,目前这个版本是基于`react-native@0.44.0`开发的,支持热加载.
-
 [react-native-alive-push-cli使用文档](./doc/cli.md)
 
 <!-- badge -->
