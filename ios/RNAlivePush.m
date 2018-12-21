@@ -14,7 +14,7 @@
 
 + (BOOL)requiresMainQueueSetup
 {
-    return NO;
+    return YES;
 }
 
 - (dispatch_queue_t)methodQueue
