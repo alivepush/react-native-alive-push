@@ -1,6 +1,6 @@
 import {NativeModules, Platform, Dimensions, PixelRatio} from 'react-native'
 import React, {Component, PureComponent} from 'react'
-import RNFetchBlob from 'react-native-fetch-blob'
+import RNFetchBlob from 'rn-fetch-blob'
 import {unzip} from 'react-native-zip-archive'
 
 //default host

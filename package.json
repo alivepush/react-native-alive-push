@@ -1,6 +1,6 @@
 {
   "name": "react-native-alive-push",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -20,8 +20,10 @@
     "babel-preset-es2015": "^6.24.0"
   },
   "peerDependencies": {
-    "react-native-fetch-blob": "^0.10.2",
-    "react-native-zip-archive": "^1.0.0"
+    "react": "*",
+    "react-native": "*",
+    "rn-fetch-blob": "*",
+    "react-native-zip-archive": ">=3"
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",

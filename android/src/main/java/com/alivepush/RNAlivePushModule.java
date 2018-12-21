@@ -9,7 +9,6 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.provider.Settings;
 
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -24,7 +23,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -287,37 +285,6 @@ public class RNAlivePushModule extends ReactContextBaseJavaModule {
      */
     @ReactMethod
     public void reloadBundle() {
-        final Context context = this.reactContext.getApplicationContext();
-        this.reactContext.getCurrentActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String bundlePath = getJSBundleFile(context);
-                    if (bundlePath != null) {
-                        BundleManager.reloadBundle(context, bundlePath);
-                    } else {
-                        emit(EVENT_BUNDLE_LOAD_ERROR, "bundle path is null");
-                    }
-                } catch (IllegalAccessException ex) {
-                    ex.printStackTrace();
-                    emit(EVENT_BUNDLE_LOAD_ERROR, ex.getMessage());
-                } catch (NoSuchMethodException ex) {
-                    ex.printStackTrace();
-                    emit(EVENT_BUNDLE_LOAD_ERROR, ex.getMessage());
-                } catch (InvocationTargetException ex) {
-                    ex.printStackTrace();
-                    Throwable t = ex.getTargetException();// 获取目标异常
-                    t.printStackTrace();
-                    emit(EVENT_BUNDLE_LOAD_ERROR, t.getMessage());
-                } catch (NoSuchFieldException e) {
-                    e.printStackTrace();
-                    emit(EVENT_BUNDLE_LOAD_ERROR, e.getMessage());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    emit(EVENT_BUNDLE_LOAD_ERROR, e.getMessage());
-                }
-            }
-        });
 
     }
 
